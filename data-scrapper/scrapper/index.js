@@ -1,10 +1,15 @@
 import { createRequire } from "module";
-import { scrapeStaticData, ScrapeDynamicData } from "./scrapper.js";
-import { urlData } from "./utils.js";
-const require = createRequire(import.meta.url);
+import { ScrapeDynamicData } from "./scrapper.js";
 
+const require = createRequire(import.meta.url);
 const express = require("express");
 const cors = require("cors");
+
+// for proxy setup - not used
+// const morgan = require("morgan");
+// const { createProxyMiddleware } = require("http-proxy-middleware");
+// require("dotenv").config();
+
 const app = express();
 const port = 5000;
 
