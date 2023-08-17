@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-function  Data ({ data }) {
+function Data ({ data }) {
     return (
         <div>
             <img src={data.imgPath} alt="img" />

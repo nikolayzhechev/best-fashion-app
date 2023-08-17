@@ -13,8 +13,8 @@ const data = [];
 // get random proxy server from list
 let randomServerIndex = Math.floor(Math.random() * proxyList.length);
 const serverObject = proxyList[randomServerIndex];
-//serverObject.host + serverObject.port;
-const proxyServer = "129.159.112.251:3128";
+const proxyServer = serverObject.host + ":" +serverObject.port;
+const proxyProtocol = serverObject.protocol;
 
 export function scrapeStaticData() {
     let config = {
@@ -43,12 +43,13 @@ export function scrapeStaticData() {
 };
 
 
-export async function ScrapeDynamicData() {
+export async function scrapeDynamicData() {
     const browser = await puppeteer.launch(
         {
             headless: true,
             args: [
-            `--proxy-server=https=${proxyServer}`,
+            `--proxy-server=${proxyProtocol}=${proxyServer}`,
+            // `--proxy-server=https=`
             // "--no-sandbox",
             // "--ignore-certificate-errors",
             // "--ignore-certificate-errors-spki-list" ,
@@ -61,8 +62,8 @@ export async function ScrapeDynamicData() {
     // await getDataAndPushToCollection(page, config, ".product-grid-product-info__main-info");
     try {
         await page.setUserAgent(config);
-        await page.goto(url); //, { timeout: 18000 }
-        
+        await page.goto(url, { timeout: 18000 });
+
         let bodyHTML = await page.evaluate(() => document.body.innerHTML);
         let $ = cheerio.load(bodyHTML);
 
@@ -80,25 +81,7 @@ export async function ScrapeDynamicData() {
     return data;
 };
 
-
-// async function getDataAndPushToCollection (page, config, selector) {
-//     try {
-//         await page.setUserAgent(config);
-//         await page.goto(url, { timeout: 18000 });
-        
-//         let bodyHTML = await page.evaluate(() => document.body.innerHTML);
-//         let $ = cheerio.load(bodyHTML);
-
-//         let retreivedData = $(selector);
-
-//         retreivedData.each(() => {
-//             const item = $.find("src");
-//             data.push({
-//                 item
-//             })  
-//         })
-
-//     } catch (error) {
-//         console.log(error)
-//     }
-// };
+export async function clearData () {
+    data.length = 0;    
+    return data;
+}
