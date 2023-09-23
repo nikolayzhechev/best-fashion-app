@@ -7,14 +7,21 @@ const axios = require("axios");
 const cheerio = require("cheerio");
 const puppeteer = require("puppeteer");
 
-const url = urlData("catsApi", "htmlCat");
 const data = [];
+let errProxyFail = false;
+let cachedSiteUrl;
+let cachedSiteType;
 
 // get random proxy server from list
-let randomServerIndex = Math.floor(Math.random() * proxyList.length);
-const serverObject = proxyList[randomServerIndex];
-const proxyServer = serverObject.host + ":" +serverObject.port;
-const proxyProtocol = serverObject.protocol;
+function getRandomProxy(){
+    let randomServerIndex = Math.floor(Math.random() * proxyList.length);
+    const serverObject = proxyList[randomServerIndex];
+    const proxyData = {
+        proxyServer: serverObject.host + ":" +serverObject.port,
+        proxyProtocol: serverObject.protocol
+    } 
+    return proxyData;
+}
 
 export function scrapeStaticData() {
     let config = {
@@ -43,12 +50,17 @@ export function scrapeStaticData() {
 };
 
 
-export async function scrapeDynamicData() {
+export async function scrapeDynamicData(siteName, type) {
+    let url = getUrl(siteName, type);
+    let proxyData = getRandomProxy();
+    cachedSiteUrl = siteName;
+    cachedSiteType = type;
+
     const browser = await puppeteer.launch(
         {
             headless: true,
             args: [
-            `--proxy-server=${proxyProtocol}=${proxyServer}`,
+            `--proxy-server=${proxyData.proxyProtocol}=${proxyData.proxyServer}`,
             // `--proxy-server=https=`
             // "--no-sandbox",
             // "--ignore-certificate-errors",
@@ -59,27 +71,38 @@ export async function scrapeDynamicData() {
     const page = await browser.newPage();
     let config = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36';
 
-    // await getDataAndPushToCollection(page, config, ".product-grid-product-info__main-info");
     try {
         await page.setUserAgent(config);
         await page.goto(url, { timeout: 18000 });
 
         let bodyHTML = await page.evaluate(() => document.body.innerHTML);
         let $ = cheerio.load(bodyHTML);
+        
+        //const resource = getData($); 
 
-        let retreivedData = $("body");
-        const singleItem = retreivedData.find("img").attr("src");
-        const imgPath = getUrl("catsApi") + singleItem;
+        let item = $(".product-grid-product-info__main-info");
+        const itemUrl = item.find("a").attr("href");
+        const title = item.find("h3").text();
 
-        data.push({ imgPath })
-
+            data.push({
+                title,
+                itemUrl
+            })
+            console.log(`Fetching data: ${title}, ${itemUrl}`);
+        
      } catch (error) {
-         console.log(error)
+         console.log(error);
+         //errProxyFail = true;
      }
     
     await browser.close();
+    errProxyFail = false;
     return data;
 };
+
+if (errProxyFail){
+    scrapeDynamicData(cachedSiteUrl, cachedSiteType);
+}
 
 export async function clearData () {
     data.length = 0;    

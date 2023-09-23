@@ -1,24 +1,29 @@
 import './App.css';
 import React, { useState } from 'react';
 import Data from './components/Data';
+import InputForm from './components/InputForm';
+import { URL } from './env.js';
 
 function App() {
   const [siteData, setSiteData] = useState([]);
 
   const handleFetchClick = async () => {
-    fetch("http://localhost:5000/")
+    fetch(URL)
       .then((res) => {return res.json()})
       .then((data) => setSiteData(data));
   }
 
   const handleClearClick = async () => {
-    fetch("http://localhost:5000/clear")
+    fetch(URL)
       .then((res) => {return res.json()})
       .then((data) => setSiteData(data));
   }
 
   return (
     <section>
+      <div>
+        <InputForm></InputForm>
+      </div>
       <div>
         <button onClick={handleFetchClick}>Fetch data</button>
       </div>

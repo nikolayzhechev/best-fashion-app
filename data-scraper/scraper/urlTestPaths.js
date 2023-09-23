@@ -2,9 +2,9 @@ export const urlPaths = [
     {
 	    name: "zara",
 	    url: "https://www.zara.com",
-	    queries: {
-	    	women: "/bg/bg/damsko-rokli-l1066.html?v1=2287785",
-	    	men: "bg/bg/mazhko-novo-l711.html?v1=2204415"
+	    queries: {  // < type
+	    	woman: "/bg/bg/damsko-rokli-l1066.html?v1=2287785",
+	    	men: "/bg/bg/mazhko-novo-l711.html?v1=2204415"
 	    },
         target: {
             tag: "div", 
@@ -77,6 +77,16 @@ export const proxyList = [
 	{
         protocol: "SOCKS5",
         host: "199.58.185.9",
+        port: 4145
+    },
+    {
+        protocol: "HTTP",
+        host: "35.236.207.242",
+        port: 33333
+    },
+    {
+        protocol: "SOCKS5",
+        host: "184.178.172.11",
         port: 4145
     }
 ]
