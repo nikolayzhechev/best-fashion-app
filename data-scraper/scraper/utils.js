@@ -1,8 +1,13 @@
 import { urlPaths } from "./urlTestPaths.js";
 
+function getCurrentObject (siteName, type){
+    let item = urlPaths.filter(el => el.name === siteName.toLowerCase())[0];
+    return item;
+}
+
 export function urlData (siteName, type) {
-    let site = urlPaths.filter(el => el.name === siteName.toLowerCase())[0];
-    // TODO: call handler function that resolves the class and returns the data to the scraper
+    let site = getCurrentObject (siteName, type);
+    
     if(site !== undefined){
         if (site.name === "zara" && type === "woman"){
             return site.url + site.queries.women;
@@ -14,28 +19,48 @@ export function urlData (siteName, type) {
             return site.url + site.queries.htmlCat
         }
     } else {
-        console.log("site name is unavailable")
+        console.error("Site name is unavailable.")
     }
 }
 // get url from React app and call urlData to retreive the whole url data and return to scraper funciton
 export function getUrl (siteName, type) {
-    let site = urlPaths.filter(el => el.name === siteName.toLowerCase())[0];
+    let site = getCurrentObject (siteName, type);
 
     if(site !== undefined){
         let [ key, queryType ] = Object.entries(site.queries).find(el => el.includes(type));
 
         console.log(`Scraping site: ${site.url + queryType}`);
-
         return site.url + queryType
     } else {
-        console.log("no url available");
+        console.error(`No url available for: ${site.url + queryType}\n  utils.js at line 35.`);
+        return undefined;
     }
 }
 
-export function getData ($, url) {
-    let retreivedData = $("body");
-    const singleItem = retreivedData.find("img").attr("src");
-    const imgPath = getUrl("catsApi") + singleItem;
+export function getData ($, siteName, type) {
+    let site = getCurrentObject (siteName, type);
+    let items = [];
 
-    return singleItem;
+    let item = $(site.target.class).each(function (){
+        let title;
+        let itemUrl;
+
+        if (typeof site.target.metadata.text === 'object'){
+            title = $(this).find(site.target.metadata.text.class).text();
+        } else {
+            title = $(this).find(site.target.metadata.text).text();
+        }
+
+        itemUrl = $(this).find("a").attr("href");
+
+        if (!itemUrl.includes("http")){
+            itemUrl = site.url + itemUrl;
+        }
+
+        items.push({
+            title,
+            itemUrl
+        })
+    });
+    return items;
 }

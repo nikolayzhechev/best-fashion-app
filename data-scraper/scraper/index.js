@@ -30,7 +30,9 @@ app.get("/", async (req, res) => {
     //res.setHeader('Content-Type', 'application/json');
     const data = await executeScrape(userData.siteName, userData.type, "dynamic");
 
-    console.log(`Returned data from scrape: ${data.title} + ${data.itemUrl}`);
+    if(data === undefined || data === null){
+        return res.status(404).send({ status: "no data found"});
+    }
 
     res.json(data);
 })
@@ -42,9 +44,9 @@ app.get("/clear", (req, res) => {
 
 app.post("/", async (req, res) => {
     const data = req.body;
-    
-    if (!data){
-        return res.status(400).send({ status: "failed" })
+
+    if (data === undefined || data === null){
+        return res.status(400).send({ status: "failed" });
     }
     res.status(200).send({ status: "success" })
 

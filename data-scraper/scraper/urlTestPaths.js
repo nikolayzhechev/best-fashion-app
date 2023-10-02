@@ -8,11 +8,11 @@ export const urlPaths = [
 	    },
         target: {
             tag: "div", 
-            class: "product-grid-product-info",
+            class: ".product-grid-product-info__main-info",
             metadata: {
-                link: "product-link _item product-grid-product-info__name link",
+                link: ".product-link _item product-grid-product-info__name link",
                 price: ["product-grid-product-info__product-price price", "money-amount__main"],
-                name: "h3" 
+                text: "h3"
             }
         }
     },
@@ -20,11 +20,49 @@ export const urlPaths = [
         name: "abaoutyou",
         url: "https://www.aboutyou.bg",
         queries: {
-            women: "/zheni/drexi-20204",
+            woman: "/c/zheni/drexi-20204",
             men: "/c/mazhe/drexi-20290"
+        },
+        target: {
+            tag: "li",
+            class: ".sc-oelsaz-0",
+            metadata: {
+                link: ".sc-16ol3xi-0 sc-163x4qs-0 KQunc hMXgrQ sc-nlxe42-4 cyyDqa",
+                price: {
+                    class: ".sc-nskkbm-0 byAMio",
+                    tag: "span"
+                },
+                text: {
+                    class: ".sc-1vt6vwe-0", //sc-1vt6vwe-1 sc-1qsfqrd-1 jQLlAg uXZUf eGeLkD
+                    tag: "p"
+                }
+            }
         }
     },
     {
+        name: "remixshop",
+        url: "https://remixshop.com/bg",
+        queries: {
+            woman: "/womens-clothes",
+            men: "/mens-clothes"
+        },
+        target: {
+            tag: "div",
+            class: ".product-info mc20000",
+            metadata: {
+                link: ".product-brand",
+                price: {
+                    class: ".rrp-price",
+                    tag: "div"
+                },
+                text: {
+                    class: ".product-brand",
+                    tag: "a"
+                }
+            }
+        }
+    },
+    {   // test api
         name: "catsapi",
         url: "https://cataas.com",
         queries: {

@@ -28,6 +28,7 @@ function InputForm () {
     async function postFormFieldsAsJson({ formData }){
         let formDataObject = Object.fromEntries(formData.entries());
         let formDataJsonString = JSON.stringify(formDataObject);
+        
         return formDataJsonString;
     }
 

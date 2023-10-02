@@ -32,7 +32,13 @@ function App() {
       </div>
     
       <div>
-        { siteData.map(item => <Data data={ item } />) }
+        { 
+          siteData.length === 0
+            ? 
+          <p>No data available.</p>
+            :
+          siteData.map(item => <Data data={ item } />) 
+        }
       </div>
     </section>
   );
