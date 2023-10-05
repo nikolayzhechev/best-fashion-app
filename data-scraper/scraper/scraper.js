@@ -23,7 +23,7 @@ function getRandomProxy(){
     }
 
     for(let key in proxyData){
-        console.log(`Proxy data: ${key}, ${proxyData[key]}`);
+        console.log(`Proxy data: ${key}: ${proxyData[key]}`);
     }
 
     return proxyData;

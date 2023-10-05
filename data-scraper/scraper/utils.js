@@ -22,7 +22,7 @@ export function urlData (siteName, type) {
         console.error("Site name is unavailable.")
     }
 }
-// get url from React app and call urlData to retreive the whole url data and return to scraper funciton
+
 export function getUrl (siteName, type) {
     let site = getCurrentObject (siteName, type);
 
@@ -44,9 +44,10 @@ export function getData ($, siteName, type) {
     let item = $(site.target.class).each(function (){
         let title;
         let itemUrl;
+        let img;
 
         if (typeof site.target.metadata.text === 'object'){
-            title = $(this).find(site.target.metadata.text.class).text();
+            title = $(this).find(site.target.metadata.text.tag).text();
         } else {
             title = $(this).find(site.target.metadata.text).text();
         }
@@ -56,10 +57,17 @@ export function getData ($, siteName, type) {
         if (!itemUrl.includes("http")){
             itemUrl = site.url + itemUrl;
         }
+        // TODO: returns undefined on Zara store - check class and parent
+        img = $(this).find(site.target.metadata.img?.refTag).attr("srcset");
+
+        if (img === null || img === undefined){
+            img = $(this).find(site.target.metadata.img?.class).attr("src");
+        }
 
         items.push({
             title,
-            itemUrl
+            itemUrl,
+            img
         })
     });
     return items;
