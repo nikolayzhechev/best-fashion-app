@@ -8,14 +8,17 @@ export const urlPaths = [
 	    },
         target: {
             tag: "div", 
-            class: "products-category-grid-block--is-template product-grid-block-dynamic product-grid-block-dynamic__container product-grid-block-dynamic__container--1A", //".product-grid-product-info__main-info",
+            class: ".products-category-grid-block--is-template",
             metadata: {
-                link: ".product-link _item product-grid-product-info__name link",
-                price: ["product-grid-product-info__product-price price", "money-amount__main"],
-                text: "h3"
+                link: ".product-link",
+                price: ".money-amount__main",
+                text: {
+                    class: ".product-link",
+                    tag: "h3"
+                }
             },
             img: {
-                class: "media-image__image",
+                class: ".media-image__image media__wrapper--media",
                 tag: "div",
                 refTag: "img"
             }
