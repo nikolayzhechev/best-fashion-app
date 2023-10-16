@@ -24,7 +24,25 @@ label {
     padding-bottom: 8px;
 }
 
-.data > img{
-    max-width: 100px;
-    max-height: 80px;
+.items-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.data-wrapper {
+    margin: 12px;
+}
+
+.data-wrapper > div > img {
+    max-width: 200px;
+    max-height: 200px;
+}
+
+.content-price {
+    font-weight: bold;
+}
+
+.content-old-price {
+    text-decoration: line-through;
+    color: grey;
 }

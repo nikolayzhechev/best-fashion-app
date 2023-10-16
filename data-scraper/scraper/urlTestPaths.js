@@ -11,21 +11,24 @@ export const urlPaths = [
             class: ".products-category-grid-block--is-template",
             metadata: {
                 link: ".product-link",
-                price: ".money-amount__main",
+                price: {
+                    class: ".money-amount__main",
+                    tag: "span"
+                },
                 text: {
                     class: ".product-link",
                     tag: "h3"
                 }
             },
             img: {
-                class: ".media-image__image media__wrapper--media",
+                class: ".media-image__image",
                 tag: "div",
                 refTag: "img"
             }
         }
     },
     {
-        name: "abaoutyou",
+        name: "aboutyou",
         url: "https://www.aboutyou.bg",
         queries: {
             woman: "/c/zheni/drexi-20204",
@@ -37,15 +40,16 @@ export const urlPaths = [
             metadata: {
                 link: ".sc-16ol3xi-0 sc-163x4qs-0 KQunc hMXgrQ sc-nlxe42-4 cyyDqa",
                 price: {
-                    class: ".sc-nskkbm-0 byAMio",
-                    tag: "span"
+                    class: ".sc-nskkbm-4",
+                    tag: "span",
+                    oldPriceClass: ".sc-nskkbm-3"
                 },
                 text: {
                     class: ".sc-1vt6vwe-0", //sc-1vt6vwe-1 sc-1qsfqrd-1 jQLlAg uXZUf eGeLkD
                     tag: "p"
                 },
                 img: {
-                    class: "sc-mt3y39-0",
+                    class: ".sc-mt3y39-0",
                     parentTag: "div",
                     refTag: "img"
                 }
@@ -75,6 +79,35 @@ export const urlPaths = [
                 img: {
                     class: ".img-fluid",
                     parentTag: "a",
+                    refTag: "img"
+                }
+            }
+        }
+    },
+    {
+        name: "fashiondays",
+        url: "https://www.fashiondays.bg",
+        queries: {
+            woman: "/s/new-in-menu-mmse-w",
+            men: "/s/app-new-in-menu-mmse-m"
+        },
+        target: {
+            tag: "a",
+            class: ".campaign-item",
+            metadata: {
+                link: ".campaign-item",
+                price: {
+                    class: ".sale-price", // .sale-wrapper whole div wrapper
+                    tag: "span"
+                },
+                text: {
+                    class: ".product-card-brand",
+                    tag: "h2",
+                    description: ".product-card-name"
+                },
+                img: {
+                    class: ".product-over",
+                    parentTag: "span",
                     refTag: "img"
                 }
             }

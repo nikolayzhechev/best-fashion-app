@@ -31,7 +31,7 @@ function App() {
         <button onClick={handleClearClick}>Clear data</button>
       </div>
     
-      <div>
+      <div className='items-wrapper'>
         { 
           siteData.length === 0
             ? 

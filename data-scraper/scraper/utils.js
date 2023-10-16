@@ -3,7 +3,8 @@ import { urlPaths } from "./urlTestPaths.js";
 const siteEnums = {
     aboutYou: "aboutyou",
     zara: "zara",
-    remixShop: "remixshop"
+    remixShop: "remixshop",
+    fashionDays: "fashiondays"
 }
 
 function getCurrentObject (siteName, type){
@@ -46,37 +47,51 @@ export function getUrl (siteName, type) {
 export function getData ($, siteName, type) {
     let site = getCurrentObject (siteName, type);
     let items = [];
+    const currentTarget = site.target.metadata;
 
     let item = $(site.target.class).each(function (){
-        let title;
-        let itemUrl;
-        let img;
+        let title, price, originalPrice, itemUrl, img, description;
 
         switch (site.name) {
             case siteEnums.aboutYou:
-                title = $(this).find(site.target.metadata.text.tag).text();
+                title = $(this).find(currentTarget.text.tag).text();
+                price = $(this).find(currentTarget.price.class).text();
+                originalPrice = $(this).find(currentTarget.price.oldPriceClass).text();
                 itemUrl = $(this).find("a").attr("href");
-                img = $(this).find(site.target.metadata.img?.refTag).attr("srcset");
+                img = $(this).find(currentTarget.img?.refTag).attr("srcset");
                 break;
             case siteEnums.zara:
-                title = $(this).find(site.target.metadata.text.class).text();
-                itemUrl = $(this).find(site.target.metadata.link).attr("href");
-                img = $(this).find(site.target.metadata.img.class).attr("src");
+                title = $(this).find(currentTarget.text.class).text();
+                itemUrl = $(this).find(currentTarget.link).attr("href");
+                img = $(this).find(currentTarget.img?.refTag).attr("src");
                 break;
+            case siteEnums.remixShop:
+                title = $(this).find(currentTarget.text.class).attr("title");
+                itemUrl = $(this).find(currentTarget.link).attr("href");
+                img = $(this).find(currentTarget.img?.class).attr("src");
+            case siteEnums.fashionDays:
+                title = $(this).find(currentTarget.text.class).text();
+                itemUrl = $(this).attr("href");
+                img = $(this).find(currentTarget.img.class).attr("src");
+                description = $(this).find(currentTarget.text.description).text();
         }
 
         if (!itemUrl?.includes("http") || !itemUrl?.includes("https")){
             itemUrl = site.url + itemUrl;
         }
-        //if (img === null || img === undefined){
-        //    img = $(this).find(site.target.metadata.img?.class).attr("src");
-        //}
 
         items.push({
             title,
+            price,
+            originalPrice,
             itemUrl,
-            img
+            img,
+            description
         })
     });
     return items;
+}
+
+function getRandomData () {
+    const randomObject = Math.floor(Math.random() * urlPaths.length);
 }
