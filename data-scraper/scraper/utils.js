@@ -1,10 +1,16 @@
 import { urlPaths } from "./urlTestPaths.js";
+import { executeScrape } from "./executeScrape.js";
 
 const siteEnums = {
     aboutYou: "aboutyou",
     zara: "zara",
     remixShop: "remixshop",
     fashionDays: "fashiondays"
+}
+let userData = {
+    url: "",
+    siteName: "",
+    type: ""
 }
 
 function getCurrentObject (siteName, type){
@@ -90,6 +96,17 @@ export function getData ($, siteName, type) {
         })
     });
     return items;
+}
+
+export function setData (data) {
+    userData.url = data.url;
+    userData.siteName = data.siteName;
+    userData.type = data.type;
+}
+
+export async function sendData () {
+    const data = await executeScrape(userData.siteName, userData.type, "dynamic");
+    return data;
 }
 
 function getRandomData () {
