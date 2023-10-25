@@ -7,7 +7,7 @@ const password = "ObichamMongoDB1996";
 
 const uri = `mongodb+srv://${username}:${password}@cluster0.lm4eduw.mongodb.net/?retryWrites=true&w=majority`;
 
-const client = new MongoClient(uri, {
+export const client = new MongoClient(uri, {
     serverApi: {
         version: ServerApiVersion.v1,
         strict: true,
@@ -22,7 +22,8 @@ export async function runDB() {
         console.log("DB connected");
     } catch (error) {
         console.log(error);
-    } finally {
-        await client.close();
-    }
+    } 
+    // finally {
+    //     await client.close();
+    // }
 }

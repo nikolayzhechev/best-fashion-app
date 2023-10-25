@@ -56,7 +56,7 @@ export function scrapeStaticData() {
 };
 
 export async function scrapeDynamicData(siteName, type) {
-    let url = getUrl(siteName, type);
+    let url = await getUrl(siteName, type);
 
     if(url === undefined){
         return;
@@ -86,7 +86,9 @@ export async function scrapeDynamicData(siteName, type) {
         let bodyHTML = await page.evaluate(() => document.body.innerHTML);
         let $ = cheerio.load(bodyHTML);
    
-        let itemsArray = getData($, siteName, type);
+        let itemsArray = await getData($, siteName, type);
+        
+        console.log(itemsArray);
 
         if(itemsArray.length === 0){
             console.error(`Items collection is empty. No data has been scraped.\n   scraper.js at line 92`);

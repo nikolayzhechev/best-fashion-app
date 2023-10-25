@@ -1,5 +1,5 @@
-import { urlPaths } from "./urlTestPaths.js";
 import { executeScrape } from "./executeScrape.js";
+import { client } from "./db.js";
 
 const siteEnums = {
     aboutYou: "aboutyou",
@@ -12,10 +12,17 @@ let userData = {
     siteName: "",
     type: ""
 }
+const dbName = "BFA";
+const collectionName = "Stores";
 
-function getCurrentObject (siteName, type){
-    let item = urlPaths.filter(el => el.name === siteName.toLowerCase())[0];
-    return item;
+async function getCurrentObject (siteName, type){
+    //let item = urlPaths.filter(el => el.name === siteName.toLowerCase())[0];
+    let items = client.db(dbName).collection(collectionName)
+        .find({ name: siteName });
+    
+    for await (const doc of items){
+        return doc;
+    }
 }
 
 export function urlData (siteName, type) {
@@ -36,8 +43,8 @@ export function urlData (siteName, type) {
     }
 }
 
-export function getUrl (siteName, type) {
-    let site = getCurrentObject (siteName, type);
+export async function getUrl (siteName, type) {
+    let site = await getCurrentObject (siteName, type);
 
     if(site !== undefined){
         let [ key, queryType ] = Object.entries(site.queries).find(el => el.includes(type));
@@ -50,8 +57,8 @@ export function getUrl (siteName, type) {
     }
 }
 
-export function getData ($, siteName, type) {
-    let site = getCurrentObject (siteName, type);
+export async function getData ($, siteName, type) {
+    let site = await getCurrentObject (siteName, type);
     let items = [];
     const currentTarget = site.target.metadata;
 
@@ -74,11 +81,11 @@ export function getData ($, siteName, type) {
             case siteEnums.remixShop:
                 title = $(this).find(currentTarget.text.class).attr("title");
                 itemUrl = $(this).find(currentTarget.link).attr("href");
-                img = $(this).find(currentTarget.img?.class).attr("src");
+                img = $(this).find(currentTarget.img?.refTag).attr("src");
             case siteEnums.fashionDays:
                 title = $(this).find(currentTarget.text.class).text();
                 itemUrl = $(this).attr("href");
-                img = $(this).find(currentTarget.img.class).attr("src");
+                img = $(this).find(currentTarget.img?.class).attr("src");
                 description = $(this).find(currentTarget.text.description).text();
         }
 
