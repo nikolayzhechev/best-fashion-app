@@ -79,37 +79,55 @@ export async function scrapeDynamicData(siteName, type) {
     const page = await browser.newPage();
     let config = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36';
     
-    try {
+    try {       
         await page.setUserAgent(config);
-        await page.goto(url, { timeout: 18000 });
-
+        await page.goto(url, { timeout: 18000});
+        
+        // const watchDog = page.waitForFunction('window.status === "ready"');
+        // await watchDog;
+        
         let bodyHTML = await page.evaluate(() => document.body.innerHTML);
         let $ = cheerio.load(bodyHTML);
-   
-        let itemsArray = await getData($, siteName, type);
         
-        console.log(itemsArray);
+        let itemsArray = await getData($, siteName, type, browser, page);
 
+        console.log(itemsArray);
         if(itemsArray.length === 0){
-            console.error(`Items collection is empty. No data has been scraped.\n   scraper.js at line 92`);
+            console.error(`Items collection is empty. No data has been scraped.\n   scraper.js at line 89`);
             return;
         }
 
         data = Array.from(itemsArray);
-        
+
      } catch (error) {
         console.log(error);
+     } finally {
+        await closeBrowser(browser);
      }
     
-    await browser.close();
     return data;
 };
 
-if (errProxyFail){
+if (errProxyFail) {
     scrapeDynamicData(cachedSiteUrl, cachedSiteType);
 }
 
 export async function clearData () {
-    data.length = 0;    
+    data.length = 0;
     return data;
 }
+
+export async function closeBrowser (browser) {
+    await browser.close();
+    console.log("Browser instance closed.");
+}
+
+// export async function waitForImageContent (page, img) {
+//     const invalidUrl = "https://static.zara.net/stdstatic/5.16.1/images/transparent-background.png";
+//     await page.waitForFunction((img, invalidUrl) => {
+//            if(img !== invalidUrl){
+//             return true;
+//            }
+//         }, {}, img, invalidUrl
+//      )
+// };

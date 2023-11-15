@@ -7,12 +7,6 @@ import { URL } from './env.js';
 function App() {
   const [siteData, setSiteData] = useState([]);
 
-  const handleFetchClick = async () => {
-    fetch(URL)
-      .then((res) => {return res.json()})
-      .then((data) => setSiteData(data));
-  }
-
   const handleClearClick = async () => {
     fetch(URL)
       .then((res) => {return res.json()})
@@ -22,13 +16,10 @@ function App() {
   return (
     <section>
       <div>
-        <InputForm></InputForm>
+        <InputForm setData={setSiteData}></InputForm>
       </div>
       <div>
-        <button onClick={handleFetchClick}>Fetch data</button>
-      </div>
-      <div>
-        <button onClick={handleClearClick}>Clear data</button>
+        <button onClick={handleClearClick}>Clear items</button>
       </div>
     
       <div className='items-wrapper'>

@@ -1,5 +1,8 @@
 import { executeScrape } from "./executeScrape.js";
 import { client } from "./db.js";
+import { createRequire } from "module";
+
+const require = createRequire(import.meta.url);
 
 const siteEnums = {
     aboutYou: "aboutyou",
@@ -16,14 +19,20 @@ const dbName = "BFA";
 const collectionName = "Stores";
 
 async function getCurrentObject (siteName, type){
-    //let item = urlPaths.filter(el => el.name === siteName.toLowerCase())[0];
     let items = client.db(dbName).collection(collectionName)
         .find({ name: siteName });
     
     for await (const doc of items){
         return doc;
     }
-}
+};
+
+export async function getAllObjects (){
+    let items = await client.db(dbName).collection(collectionName)
+        .find().toArray();
+
+    return items;
+};
 
 export function urlData (siteName, type) {
     let site = getCurrentObject (siteName, type);
@@ -41,7 +50,7 @@ export function urlData (siteName, type) {
     } else {
         console.error("Site name is unavailable.")
     }
-}
+};
 
 export async function getUrl (siteName, type) {
     let site = await getCurrentObject (siteName, type);
@@ -55,38 +64,51 @@ export async function getUrl (siteName, type) {
         console.error(`No url available;\n  utils.js at line 35.`);
         return undefined;
     }
-}
+};
 
-export async function getData ($, siteName, type) {
+export async function getData ($, siteName, type, page) {
     let site = await getCurrentObject (siteName, type);
     let items = [];
     const currentTarget = site.target.metadata;
 
-    let item = $(site.target.class).each(function (){
-        let title, price, originalPrice, itemUrl, img, description;
+    await $(site.target.class).each(function (){
+        let title, price, originalPrice, itemUrl, description;
+        let img = [];
 
+        waitForTarget(page, "img")
+            .then(img.push($(this).find("img").attr("src")));
+                
         switch (site.name) {
             case siteEnums.aboutYou:
                 title = $(this).find(currentTarget.text.tag).text();
                 price = $(this).find(currentTarget.price.class).text();
                 originalPrice = $(this).find(currentTarget.price.oldPriceClass).text();
                 itemUrl = $(this).find("a").attr("href");
-                img = $(this).find(currentTarget.img?.refTag).attr("srcset");
+                // multiple images - implement img collection and add carosel in front-end
+                img.push($(this).find("img").attr("srcset"));
                 break;
+
             case siteEnums.zara:
                 title = $(this).find(currentTarget.text.class).text();
+                price = $(this).find(currentTarget.price.class).text();
                 itemUrl = $(this).find(currentTarget.link).attr("href");
-                img = $(this).find(currentTarget.img?.refTag).attr("src");
+                //img.push($(this).find("img").not(function () {
+                //    return $(this)
+                //        .attr("src") === "https://static.zara.net/stdstatic/5.16.1/images/transparent-background.png";
+                //}).attr("src"));
                 break;
+
             case siteEnums.remixShop:
                 title = $(this).find(currentTarget.text.class).attr("title");
+                price = $(this).find(currentTarget.price.class).text();
                 itemUrl = $(this).find(currentTarget.link).attr("href");
-                img = $(this).find(currentTarget.img?.refTag).attr("src");
+                break;
+
             case siteEnums.fashionDays:
                 title = $(this).find(currentTarget.text.class).text();
                 itemUrl = $(this).attr("href");
-                img = $(this).find(currentTarget.img?.class).attr("src");
                 description = $(this).find(currentTarget.text.description).text();
+                break;
         }
 
         if (!itemUrl?.includes("http") || !itemUrl?.includes("https")){
@@ -100,22 +122,31 @@ export async function getData ($, siteName, type) {
             itemUrl,
             img,
             description
-        })
+        });
     });
+
     return items;
-}
+};
 
 export function setData (data) {
     userData.url = data.url;
     userData.siteName = data.siteName;
     userData.type = data.type;
-}
+};
 
 export async function sendData () {
     const data = await executeScrape(userData.siteName, userData.type, "dynamic");
     return data;
-}
+};
 
 function getRandomData () {
     const randomObject = Math.floor(Math.random() * urlPaths.length);
-}
+};
+
+async function waitForTarget (page, target) {
+    try {
+        await page.waitForSelector(target, {visible: true}, {timeout: 3000})
+    } catch (error) {
+        console.log(error);
+    }
+};

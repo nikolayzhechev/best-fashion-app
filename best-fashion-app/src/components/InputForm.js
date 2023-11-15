@@ -1,9 +1,15 @@
 import '../App.css';
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { URL } from "../env.js";
 
-function InputForm () {
-    //const [formData, setFormData] = useState( {url: "", siteName: "", type: "", });
+function InputForm ({ setData }) {
+    const [itemOptions, setItemOptions] = useState([]);
+
+    useEffect(() => {
+      fetch(URL)
+        .then((res) => {return res.json()})
+        .then((data) => setItemOptions(data));
+    }, [])
 
     const sendDataHandler = async (e) => {
         e.preventDefault();
@@ -21,6 +27,11 @@ function InputForm () {
             },
             body: responseData
         })
+        .then(() => {
+            fetch(URL + "getItems")
+                .then((res) => {return res.json()})
+                .then((data) => setData(data));
+        })
         .catch((err) => {
             console.log(err.message);
         });
@@ -33,20 +44,23 @@ function InputForm () {
         return formDataJsonString;
     }
 
-//value={formData.url} onChange={(e) => setFormData(e.target.url)}
     return (
         <div>
             <form onSubmit={sendDataHandler}>
-                <label htmlFor="url">URL:</label>
-                <input type="text" id="url" name="url"></input>
-
                 <label htmlFor="siteName">Site Name:</label>
-                <input type="text" id="siteName" name="siteName"></input>
+                <select id="siteName" name="siteName">
+                    {
+                        itemOptions?.map((item) => <option value={item.name}>{item.name}</option>)
+                    }
+                </select>
 
                 <label htmlFor="type">Type:</label>
-                <input type="text" id="type" name="type"></input>
+                <select id="type" name="type">
+                    <option value="woman">Woman</option>
+                    <option value="men">Men</option>
+                </select>
 
-                <button type="submit" >Send</button>
+                <button type="submit">Filter items</button>
             </form>
         </div>
     )

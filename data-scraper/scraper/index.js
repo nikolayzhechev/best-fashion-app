@@ -1,6 +1,6 @@
 import { createRequire } from "module";
 import { runDB } from "./db.js";
-import { setData, sendData } from "./utils.js";
+import { setData, sendData, getAllObjects } from "./utils.js";
 import * as dataHandle from "./scraper.js";
 
 const require = createRequire(import.meta.url);
@@ -14,6 +14,16 @@ app.use(cors());
 app.use(express.json());
 
 app.get("/", async (req, res) => {
+    const data = await getAllObjects();
+
+    if(data === undefined || data === null){
+        return res.status(404).send({ status: "options unavailable"});
+    }
+
+    res.json(data);
+});
+
+app.get("/getItems", async (req, res) => {
     //res.setHeader('Content-Type', 'application/json');
     const data = await sendData();
 
@@ -22,12 +32,12 @@ app.get("/", async (req, res) => {
     }
 
     res.json(data);
-})
+});
 
 app.get("/clear", (req, res) => {
     const data = dataHandle.clearData();
     req.json(data);
-})
+});
 
 app.post("/", async (req, res) => {
     const data = req.body;
@@ -38,10 +48,10 @@ app.post("/", async (req, res) => {
     res.status(200).send({ status: "success" })
 
     setData(data);
-})
+});
 
 app.listen(port,  () => {
     console.log(`Server listening on port ${port}`);
-})
+});
 
 runDB();
