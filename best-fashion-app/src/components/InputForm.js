@@ -2,22 +2,15 @@ import '../App.css';
 import React, { useState, useEffect } from "react";
 import { URL } from "../env.js";
 
-function InputForm ({ setData }) {
-    const [itemOptions, setItemOptions] = useState([]);
+function InputForm ({ setData, itemOptions }) {
+    const [type, setType] = useState("");
 
-    useEffect(() => {
-      fetch(URL)
-        .then((res) => {return res.json()})
-        .then((data) => setItemOptions(data));
-    }, [])
+    const updateTypeHandler = (e) => {
+        setType(e.target.value);
+    };
 
-    const sendDataHandler = async (e) => {
-        e.preventDefault();
-
-        const form = e.target;
-        const formData = new FormData(form);
-
-        let responseData = await postFormFieldsAsJson({ formData });
+    const sendDataHandler = (e) => {
+        const siteName = e.target.value;
 
         fetch(URL, {
             method: 'POST',
@@ -25,7 +18,10 @@ function InputForm ({ setData }) {
                 "Content-Type": "application/json",
                 Accept: "application/json",
             },
-            body: responseData
+            body: JSON.stringify({
+                siteName,
+                type
+            })
         })
         .then(() => {
             fetch(URL + "getItems")
@@ -37,16 +33,38 @@ function InputForm ({ setData }) {
         });
     }
 
-    async function postFormFieldsAsJson({ formData }){
-        let formDataObject = Object.fromEntries(formData.entries());
-        let formDataJsonString = JSON.stringify(formDataObject);
-        
-        return formDataJsonString;
-    }
-
     return (
-        <div>
-            <form onSubmit={sendDataHandler}>
+        <div className='navi-container'>
+            <ul className='navi-list-container'>
+                <li className='navi-list-container-item'>
+                    <button value={"woman"} onMouseOver ={updateTypeHandler}>Woman</button>
+                    <ul className='navi-list-dropdown'>
+                        {
+                            itemOptions?.map((item) =>
+                                <li className='navi-list-item'>
+                                    <button value={item.name} onClick={sendDataHandler}>
+                                        {item.name}
+                                    </button>
+                                </li>)
+                        }
+                    </ul>
+                </li>
+                <li className='navi-list-container-item'>
+                    <button value={"men"} onMouseOver ={updateTypeHandler}>Men</button>
+                    <ul className='navi-list-dropdown'>
+                        {
+                            itemOptions?.map((item) =>
+                                <li className='navi-list-item'>
+                                    <button value={item.name} onClick={sendDataHandler}>
+                                        {item.name}
+                                    </button>
+                                </li>)
+                        }
+                    </ul>
+                </li>
+            </ul>
+
+            {/* <form onSubmit={sendDataHandler}>
                 <label htmlFor="siteName">Site Name:</label>
                 <select id="siteName" name="siteName">
                     {
@@ -61,7 +79,7 @@ function InputForm ({ setData }) {
                 </select>
 
                 <button type="submit">Filter items</button>
-            </form>
+            </form> */}
         </div>
     )
 }

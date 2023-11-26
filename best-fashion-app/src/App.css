@@ -1,3 +1,63 @@
+* {
+    padding: 0;
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 18px;
+}
+
+ul {
+    list-style: none;
+}
+
+.navi-container {
+    margin: 10px;
+}
+
+.navi-list-container-item button {
+    margin: 12px;
+    border: none;
+    background-color: transparent;
+}
+
+.navi-list-container-item button:hover {
+    background-color: white;
+}
+
+.navi-list-container-item:hover {
+    background-color: white;
+}
+
+.navi-list-dropdown {
+    background-color: white;
+}
+
+.navi-list-container > li, .navi-list > li {
+    display: inline-block;
+    position: relative;
+}
+
+.navi-list-container-item .navi-list-item {
+    padding: 5px;
+}
+
+.navi-list-container-item > ul li{
+    display: block;
+}
+
+.navi-list-container-item > ul {
+    position: absolute;
+    z-index: 999;
+    display: none;
+}
+
+.navi-list-container-item > button:hover {
+    background-color: rgb(255, 255, 255);
+}
+
+.navi-list-container-item:hover > ul {
+    display: block;
+}
+
 body {
     background-color: rgb(230, 230, 230);
 }
