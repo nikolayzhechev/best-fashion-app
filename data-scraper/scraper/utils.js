@@ -65,7 +65,7 @@ export async function getUrl (siteName, type) {
         return undefined;
     }
 };
-
+    // create function to get title and links
 export async function getData ($, siteName, type, page) {
     let site = await getCurrentObject (siteName, type);
     let items = [];

@@ -1,6 +1,6 @@
 import { getUrl, getData } from "./utils.js";
 import { createRequire } from "module";
-import { proxyList } from "./urlTestPaths.js";
+import { proxyList } from "./proxyList.js";
 
 const require = createRequire(import.meta.url);
 const axios = require("axios");
