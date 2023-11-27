@@ -2,7 +2,7 @@ import '../App.css';
 import React, { useState, useEffect } from "react";
 import { URL } from "../env.js";
 
-function InputForm ({ setData, itemOptions }) {
+function InputForm ({ setData, setNavi, itemOptions }) {
     const [type, setType] = useState("");
 
     const updateTypeHandler = (e) => {
@@ -26,7 +26,10 @@ function InputForm ({ setData, itemOptions }) {
         .then(() => {
             fetch(URL + "getItems")
                 .then((res) => {return res.json()})
-                .then((data) => setData(data));
+                .then((data) => {
+                    setData(data.itemsData);
+                    setNavi(data.naviData);
+                });
         })
         .catch((err) => {
             console.log(err.message);

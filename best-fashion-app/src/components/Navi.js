@@ -1,13 +1,9 @@
 import '../App.css';
 import React, { useState, useEffect } from 'react';
 
-function Navi ({ titles, links }) {
+function Navi ({ data }) {
     return (
-        <ul>
-            {
-                //TODO: map titles and links
-            }
-        </ul>
+        <li><a href={data.link}>{data.title}</a></li>
     )
 }
 

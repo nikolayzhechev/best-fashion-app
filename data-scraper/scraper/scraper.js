@@ -7,7 +7,8 @@ const axios = require("axios");
 const cheerio = require("cheerio");
 const puppeteer = require("puppeteer");
 
-let data = [];
+let itemsData = [];
+let naviData = [];
 let errProxyFail = false;
 let cachedSiteUrl;
 let cachedSiteType;
@@ -44,7 +45,7 @@ export function scrapeStaticData() {
                 const title = $(this).find("h3").text();
                 const url = $(this).find("a").attr("href");
 
-                data.push({
+                itemsData.push({
                     title,
                     url
                 })
@@ -52,7 +53,7 @@ export function scrapeStaticData() {
         })
         .catch(err => err.catch);
 
-    return data;
+    return itemsData;
 };
 
 export async function scrapeDynamicData(siteName, type) {
@@ -89,15 +90,17 @@ export async function scrapeDynamicData(siteName, type) {
         let bodyHTML = await page.evaluate(() => document.body.innerHTML);
         let $ = cheerio.load(bodyHTML);
         
-        let itemsArray = await getData($, siteName, type, browser, page);
+        let allItems = await getData($, siteName, type, browser, page);
+        let itemsArray = allItems.items;
+        let naviItemsArray = allItems.naviItems;
 
-        console.log(itemsArray);
         if(itemsArray.length === 0){
             console.error(`Items collection is empty. No data has been scraped.\n   scraper.js at line 89`);
             return;
         }
 
-        data = Array.from(itemsArray);
+        itemsData = Array.from(itemsArray);
+        naviData = Array.from(naviItemsArray);
 
      } catch (error) {
         console.log(error);
@@ -105,7 +108,7 @@ export async function scrapeDynamicData(siteName, type) {
         await closeBrowser(browser);
      }
     
-    return data;
+    return { itemsData, naviData };
 };
 
 if (errProxyFail) {

@@ -26,12 +26,14 @@ app.get("/", async (req, res) => {
 app.get("/getItems", async (req, res) => {
     //res.setHeader('Content-Type', 'application/json');
     const data = await sendData();
+    const itemsData = data.itemsData;
+    const naviData = data.naviData;
 
     if(data === undefined || data === null){
         return res.status(404).send({ status: "no data found"});
     }
-
-    res.json(data);
+    
+    res.json({itemsData, naviData});
 });
 
 app.get("/clear", (req, res) => {

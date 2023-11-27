@@ -7,6 +7,7 @@ import { URL } from './env.js';
 
 function App() {
   const [siteData, setSiteData] = useState([]);
+  const [naviData, setNaviData] = useState([]);
   const [itemOptions, setItemOptions] = useState([]);
   const [error, setError] = useState(null);
 
@@ -24,16 +25,20 @@ function App() {
   const handleClearClick = async () => {
     fetch(URL)
       .then((res) => {return res.json()})
-      .then((data) => setSiteData(data));
+      .then((data) => setSiteData(data))
   }
                                           // TODO: check title nad link props
   return (
     <section>
-      <div className='navi-wrapper'>
-        <Navi titles={siteData.titles} links={siteData.links}></Navi>
-      </div>
       <div>
-        <InputForm setData={setSiteData} itemOptions={itemOptions}></InputForm>
+        <InputForm setData={setSiteData} setNavi={setNaviData} itemOptions={itemOptions}></InputForm>
+      </div>
+      <div className='navi-wrapper'>
+        <ul>
+          {
+            naviData.map(item => <Navi data={ item }></Navi>)
+          }
+        </ul>
       </div>
       <div>
         <button onClick={handleClearClick}>Clear items</button>

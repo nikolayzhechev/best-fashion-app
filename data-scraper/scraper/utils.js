@@ -16,10 +16,11 @@ let userData = {
     type: ""
 }
 const dbName = "BFA";
-const collectionName = "Stores";
+const storesCollection = "Stores";
+const queryCollection = "Queries";
 
 async function getCurrentObject (siteName, type){
-    let items = client.db(dbName).collection(collectionName)
+    let items = client.db(dbName).collection(storesCollection)
         .find({ name: siteName });
     
     for await (const doc of items){
@@ -27,8 +28,17 @@ async function getCurrentObject (siteName, type){
     }
 };
 
+async function getQueryList (siteName, type){
+    let items = client.db(dbName).collection(queryCollection)
+        .find({ site: siteName });
+
+    for await (const doc of items){
+        return doc;
+    }
+};
+
 export async function getAllObjects (){
-    let items = await client.db(dbName).collection(collectionName)
+    let items = await client.db(dbName).collection(storesCollection)
         .find().toArray();
 
     return items;
@@ -67,9 +77,24 @@ export async function getUrl (siteName, type) {
 };
     // create function to get title and links
 export async function getData ($, siteName, type, page) {
-    let site = await getCurrentObject (siteName, type);
+    let site = await getCurrentObject(siteName, type);
+    let queries = await getQueryList(siteName, type);
     let items = [];
+    let naviItems = [];
     const currentTarget = site.target.metadata;
+
+    await $(queries.navi.link).each(function () {   
+        let link, title;
+
+        link = $(this).attr("href");
+        title = $(this).find(queries.navi.title).text();
+
+        if (!link?.includes("http") || !link?.includes("https")){
+            link = site.url + link;
+        }
+
+        naviItems.push({link, title});
+    });
 
     await $(site.target.class).each(function (){
         let title, price, originalPrice, itemUrl, description;
@@ -125,7 +150,7 @@ export async function getData ($, siteName, type, page) {
         });
     });
 
-    return items;
+    return { items, naviItems };
 };
 
 export function setData (data) {
