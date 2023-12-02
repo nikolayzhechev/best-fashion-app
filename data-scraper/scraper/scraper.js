@@ -56,8 +56,14 @@ export function scrapeStaticData() {
     return itemsData;
 };
 
-export async function scrapeDynamicData(siteName, type) {
-    let url = await getUrl(siteName, type);
+export async function scrapeDynamicData(siteName, type, queryData) {
+    let url;
+    
+    if (queryData === null){
+        url = await getUrl(siteName, type);
+    } else {
+        url = queryData.url;
+    }
 
     if(url === undefined){
         return;
@@ -84,13 +90,10 @@ export async function scrapeDynamicData(siteName, type) {
         await page.setUserAgent(config);
         await page.goto(url, { timeout: 18000});
         
-        // const watchDog = page.waitForFunction('window.status === "ready"');
-        // await watchDog;
-        
         let bodyHTML = await page.evaluate(() => document.body.innerHTML);
         let $ = cheerio.load(bodyHTML);
         
-        let allItems = await getData($, siteName, type, browser, page);
+        let allItems = await getData($, siteName, type, queryData, browser, page);
         let itemsArray = allItems.items;
         let naviItemsArray = allItems.naviItems;
 
@@ -107,7 +110,7 @@ export async function scrapeDynamicData(siteName, type) {
      } finally {
         await closeBrowser(browser);
      }
-    
+
     return { itemsData, naviData };
 };
 
@@ -124,13 +127,3 @@ export async function closeBrowser (browser) {
     await browser.close();
     console.log("Browser instance closed.");
 }
-
-// export async function waitForImageContent (page, img) {
-//     const invalidUrl = "https://static.zara.net/stdstatic/5.16.1/images/transparent-background.png";
-//     await page.waitForFunction((img, invalidUrl) => {
-//            if(img !== invalidUrl){
-//             return true;
-//            }
-//         }, {}, img, invalidUrl
-//      )
-// };

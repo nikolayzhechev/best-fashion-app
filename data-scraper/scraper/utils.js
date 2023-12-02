@@ -15,11 +15,18 @@ let userData = {
     siteName: "",
     type: ""
 }
+let queryData = {
+    url: "",
+    currentSite: ""
+}
 const dbName = "BFA";
 const storesCollection = "Stores";
 const queryCollection = "Queries";
 
-async function getCurrentObject (siteName, type){
+async function getCurrentObject (siteName, type, queryData){
+    if (siteName === null){
+        siteName = queryData.currentSite;
+    }
     let items = client.db(dbName).collection(storesCollection)
         .find({ name: siteName });
     
@@ -28,7 +35,14 @@ async function getCurrentObject (siteName, type){
     }
 };
 
-async function getQueryList (siteName, type){
+async function getCurrentQueryObject (){
+    // TODO: get the HTML data for the current query object
+};
+
+async function getQueryList (siteName, type, queryData){
+    if (siteName === null){
+        siteName = queryData.currentSite;
+    }
     let items = client.db(dbName).collection(queryCollection)
         .find({ site: siteName });
 
@@ -75,10 +89,11 @@ export async function getUrl (siteName, type) {
         return undefined;
     }
 };
-    // create function to get title and links
-export async function getData ($, siteName, type, page) {
-    let site = await getCurrentObject(siteName, type);
-    let queries = await getQueryList(siteName, type);
+
+export async function getData ($, siteName, type, queryData, browser, page) {
+    // TODO: get current object via query url
+    let site = await getCurrentObject(siteName, type, queryData);
+    let queries = await getQueryList(siteName, type, queryData);
     let items = [];
     let naviItems = [];
     const currentTarget = site.target.metadata;
@@ -159,8 +174,19 @@ export function setData (data) {
     userData.type = data.type;
 };
 
+export function setQueryData (data) {
+    queryData.url = data.queryLink;
+    queryData.currentSite = data.thisSite;
+};
+
 export async function sendData () {
-    const data = await executeScrape(userData.siteName, userData.type, "dynamic");
+    const data = await executeScrape(userData.siteName, userData.type, null, "dynamic");
+    return data;
+};
+
+export async function sendQueryData () {
+    // TODO: executescrape with new criteria
+    const data = await executeScrape(null, null, queryData, "dynamic");
     return data;
 };
 
@@ -172,6 +198,6 @@ async function waitForTarget (page, target) {
     try {
         await page.waitForSelector(target, {visible: true}, {timeout: 3000})
     } catch (error) {
-        console.log(error);
+        // console.log(error); UPDATE
     }
 };

@@ -1,6 +1,6 @@
 import { createRequire } from "module";
 import { runDB } from "./db.js";
-import { setData, sendData, getAllObjects } from "./utils.js";
+import { setData, sendData, setQueryData, sendQueryData, getAllObjects } from "./utils.js";
 import * as dataHandle from "./scraper.js";
 
 const require = createRequire(import.meta.url);
@@ -24,8 +24,20 @@ app.get("/", async (req, res) => {
 });
 
 app.get("/getItems", async (req, res) => {
-    //res.setHeader('Content-Type', 'application/json');
     const data = await sendData();
+    const itemsData = data.itemsData;
+    const naviData = data.naviData;
+
+    if(data === undefined || data === null){
+        return res.status(404).send({ status: "no data found"});
+    }
+    
+    res.json({itemsData, naviData});
+});
+
+app.get("/getQueryItems", async (req, res) => {
+    // TODO: execute function to send already updated url to scraper module
+    const data = await sendQueryData();
     const itemsData = data.itemsData;
     const naviData = data.naviData;
 
@@ -50,6 +62,17 @@ app.post("/", async (req, res) => {
     res.status(200).send({ status: "success" })
 
     setData(data);
+});
+
+app.post("/query", async (req, res) => {
+    const data = req.body;
+
+    if (data === undefined || data === null){
+        return res.status(400).send({ status: "failed" });
+    }
+    res.status(200).send({ status: "success" })
+    // TODO: call new function with query data
+    setQueryData(data);
 });
 
 app.listen(port,  () => {
