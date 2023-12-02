@@ -8,7 +8,9 @@ import { URL } from './env.js';
 function App() {
   const [siteData, setSiteData] = useState([]);
   const [naviData, setNaviData] = useState([]);
+  const [queryData, setQueryData] = useState([]);
   const [itemOptions, setItemOptions] = useState([]);
+  const [currentSiteName, setCurrentSiteName] = useState("");
   const [error, setError] = useState(null);
 
   if (error) {
@@ -27,21 +29,30 @@ function App() {
       .then((res) => {return res.json()})
       .then((data) => setSiteData(data))
   }
-                                          // TODO: check title nad link props
+
   return (
     <section>
       <div>
-        <InputForm setData={setSiteData} setNavi={setNaviData} itemOptions={itemOptions}></InputForm>
+        <InputForm
+          setData={setSiteData}
+          setNavi={setNaviData}
+          itemOptions={itemOptions}
+          setSiteName={setCurrentSiteName}></InputForm>
       </div>
       <div className='navi-wrapper'>
-        <ul>
+        <ul className='navi-wrapper-list'>
           {
-            naviData.map(item => <Navi data={ item }></Navi>)
+            naviData.map(item => <Navi
+              data={item}
+              mainSiteData={siteData}
+              setData={setSiteData}
+              setNavi={setNaviData}
+              thisSite={currentSiteName}></Navi>)
           }
         </ul>
       </div>
       <div>
-        <button onClick={handleClearClick}>Clear items</button>
+        <button onClick={handleClearClick}>Clear filters</button>
       </div>
     
       <div className='items-wrapper'>

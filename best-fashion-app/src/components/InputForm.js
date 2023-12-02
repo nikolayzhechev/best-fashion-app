@@ -2,7 +2,7 @@ import '../App.css';
 import React, { useState, useEffect } from "react";
 import { URL } from "../env.js";
 
-function InputForm ({ setData, setNavi, itemOptions }) {
+function InputForm ({ setData, setNavi, itemOptions, setSiteName }) {
     const [type, setType] = useState("");
 
     const updateTypeHandler = (e) => {
@@ -11,6 +11,7 @@ function InputForm ({ setData, setNavi, itemOptions }) {
 
     const sendDataHandler = (e) => {
         const siteName = e.target.value;
+        setSiteName(siteName);
 
         fetch(URL, {
             method: 'POST',
@@ -29,7 +30,7 @@ function InputForm ({ setData, setNavi, itemOptions }) {
                 .then((data) => {
                     setData(data.itemsData);
                     setNavi(data.naviData);
-                });
+                })
         })
         .catch((err) => {
             console.log(err.message);
