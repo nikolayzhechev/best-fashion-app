@@ -1,15 +1,12 @@
 import { executeScrape } from "./executeScrape.js";
-import { client } from "./db.js";
 import { createRequire } from "module";
+import * as globalConfig from "./config.js";
+import siteEnums from "./enums.js";
+import dbConfig from "./db/dbConfig.js";
 
 const require = createRequire(import.meta.url);
+const retreivedItemsDbCollection = dbConfig.db.collection(dbConfig.retreivedDataCollection);
 
-const siteEnums = {
-    aboutYou: "aboutyou",
-    zara: "zara",
-    remixShop: "remixshop",
-    fashionDays: "fashiondays"
-}
 let userData = {
     url: "",
     siteName: "",
@@ -19,15 +16,12 @@ let queryData = {
     url: "",
     currentSite: ""
 }
-const dbName = "BFA";
-const storesCollection = "Stores";
-const queryCollection = "Queries";
 
 async function getCurrentObject (siteName, type, queryData){
     if (siteName === null){
         siteName = queryData.currentSite;
     }
-    let items = client.db(dbName).collection(storesCollection)
+    let items = dbConfig.db.collection(dbConfig.storesCollection)
         .find({ name: siteName });
     
     for await (const doc of items){
@@ -35,15 +29,11 @@ async function getCurrentObject (siteName, type, queryData){
     }
 };
 
-async function getCurrentQueryObject (){
-    // TODO: get the HTML data for the current query object
-};
-
 async function getQueryList (siteName, type, queryData){
     if (siteName === null){
         siteName = queryData.currentSite;
     }
-    let items = client.db(dbName).collection(queryCollection)
+    let items = dbConfig.db.collection(dbConfig.queryCollection)
         .find({ site: siteName });
 
     for await (const doc of items){
@@ -52,7 +42,7 @@ async function getQueryList (siteName, type, queryData){
 };
 
 export async function getAllObjects (){
-    let items = await client.db(dbName).collection(storesCollection)
+    let items = await dbConfig.db.collection(dbConfig.storesCollection)
         .find().toArray();
 
     return items;
@@ -91,26 +81,65 @@ export async function getUrl (siteName, type) {
 };
 
 export async function getData ($, siteName, type, queryData, browser, page) {
-    // TODO: get current object via query url
     let site = await getCurrentObject(siteName, type, queryData);
     let queries = await getQueryList(siteName, type, queryData);
     let items = [];
     let naviItems = [];
+    let pagination = [];
     const currentTarget = site.target.metadata;
 
-    await $(queries.navi.link).each(function () {   
+    // retreive links from site
+    await $(queries.navi.parent).each(function () {   
         let link, title;
 
-        link = $(this).attr("href");
-        title = $(this).find(queries.navi.title).text();
+        switch (site.name) {
+            case siteEnums.fashionDays:
+                link = $(this).attr("href");
+                title = $(this).find(queries.navi.title).text();
+                break;
+            case siteEnums.remixShop:
+                link = $(this).attr("href");
+                title = $(this).text().trim();
+                break;
+            case siteEnums.zara:
+                link = $(this).find(queries.navi.link).attr("href");
+                title = $(this).find("span").text();
+                break;
+            case siteEnums.aboutYou:
+                link = $(this).attr("href");
+                title = $(this).find(queries.navi.title).text().trim();
+                break;
+        }
 
         if (!link?.includes("http") || !link?.includes("https")){
             link = site.url + link;
         }
-
-        naviItems.push({link, title});
+        if (link !== null){
+            naviItems.push({link, title});
+        }
     });
 
+    // retreive pagination
+    await $(site.pagination).find("li").each(function () {
+        let url, text;
+
+        switch (site.name) {
+            case siteEnums.remixShop:
+                url = $(this).find("a").attr("href");
+                text = $(this).find("a").text();
+                break;
+        }
+
+        if (!url.includes("http")) {
+            url = site.url + url;
+        }
+
+        if (!url.includes("javascript")) {
+            pagination.push({url, text});
+        }
+    });
+
+    // retreive main data from site
     await $(site.target.class).each(function (){
         let title, price, originalPrice, itemUrl, description;
         let img = [];
@@ -146,6 +175,7 @@ export async function getData ($, siteName, type, queryData, browser, page) {
 
             case siteEnums.fashionDays:
                 title = $(this).find(currentTarget.text.class).text();
+                price = $(this).find(currentTarget.price.class).text();
                 itemUrl = $(this).attr("href");
                 description = $(this).find(currentTarget.text.description).text();
                 break;
@@ -161,11 +191,12 @@ export async function getData ($, siteName, type, queryData, browser, page) {
             originalPrice,
             itemUrl,
             img,
-            description
+            description,
+            site: siteName        //TODO: add site name to write operation for later use
         });
     });
 
-    return { items, naviItems };
+    return { items, naviItems, pagination };
 };
 
 export function setData (data) {
@@ -185,13 +216,27 @@ export async function sendData () {
 };
 
 export async function sendQueryData () {
-    // TODO: executescrape with new criteria
     const data = await executeScrape(null, null, queryData, "dynamic");
     return data;
 };
 
-function getRandomData () {
-    const randomObject = Math.floor(Math.random() * urlPaths.length);
+export async function writeData (data) {
+    if (globalConfig.globalWriteToDB){
+        let searchedItems = [];
+    
+        data.forEach(item => {
+            // TODO: update find existing item operation
+            searchedItems.push(retreivedItemsDbCollection.find({ itemUrl: item.itemUrl }));
+        });
+
+        data = data.filter(el => !searchedItems.includes(el));
+
+        retreivedItemsDbCollection.insertMany(data)
+            .then(res => {
+                console.log(`Information: doc inserted: ${res._id}`);
+            })
+            .catch(err => console.log(`Failed to insert doc: ${res.itemUrl}\n${err}`));
+    } else {console.log(`globalWriteToDB: ${globalConfig.globalWriteToDB}`)}
 };
 
 async function waitForTarget (page, target) {
@@ -201,3 +246,10 @@ async function waitForTarget (page, target) {
         // console.log(error); UPDATE
     }
 };
+
+export async function deleteRerteivedData (filter) {
+    if (globalConfig.deleteRetreivedData){
+        retreivedItemsDbCollection.deleteMany(filter);
+        console.log(`Warning: data deleted: ${globalConfig.deleteRetreivedData}`);
+    }
+}

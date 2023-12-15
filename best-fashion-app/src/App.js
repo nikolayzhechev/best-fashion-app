@@ -9,6 +9,7 @@ function App() {
   const [siteData, setSiteData] = useState([]);
   const [naviData, setNaviData] = useState([]);
   const [queryData, setQueryData] = useState([]);
+  const [pageData, setPageData] = useState([]);
   const [itemOptions, setItemOptions] = useState([]);
   const [currentSiteName, setCurrentSiteName] = useState("");
   const [error, setError] = useState(null);
@@ -31,13 +32,15 @@ function App() {
   }
 
   return (
-    <section>
+    <section className='main-section'>
       <div>
         <InputForm
           setData={setSiteData}
           setNavi={setNaviData}
+          setPages={setPageData}
           itemOptions={itemOptions}
-          setSiteName={setCurrentSiteName}></InputForm>
+          setSiteName={setCurrentSiteName}>
+          </InputForm>
       </div>
       <div className='navi-wrapper'>
         <ul className='navi-wrapper-list'>
@@ -47,11 +50,12 @@ function App() {
               mainSiteData={siteData}
               setData={setSiteData}
               setNavi={setNaviData}
-              thisSite={currentSiteName}></Navi>)
+              thisSite={currentSiteName}>
+              </Navi>)
           }
         </ul>
       </div>
-      <div>
+      <div className='clear-btn'>
         <button onClick={handleClearClick}>Clear filters</button>
       </div>
     
@@ -63,6 +67,15 @@ function App() {
             :
           siteData?.map(item => <Data data={ item } />) 
         }
+      </div>
+
+      <div className='pagination-container'>
+        <ul>
+          { pageData?.map(item => <li>
+              <button><a href={item.url}>{item.text}</a></button>
+            </li>)
+          }
+        </ul>
       </div>
     </section>
   );

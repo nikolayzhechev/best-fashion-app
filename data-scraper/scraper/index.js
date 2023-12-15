@@ -1,6 +1,14 @@
 import { createRequire } from "module";
-import { runDB } from "./db.js";
-import { setData, sendData, setQueryData, sendQueryData, getAllObjects } from "./utils.js";
+import { runDB } from "./db/db.js";
+import {
+    setData,
+    sendData,
+    setQueryData,
+    sendQueryData,
+    getAllObjects,
+    writeData,
+    deleteRerteivedData
+} from "./utils.js";
 import * as dataHandle from "./scraper.js";
 
 const require = createRequire(import.meta.url);
@@ -27,16 +35,18 @@ app.get("/getItems", async (req, res) => {
     const data = await sendData();
     const itemsData = data.itemsData;
     const naviData = data.naviData;
+    const pagesData = data.pagesData;
 
     if(data === undefined || data === null){
         return res.status(404).send({ status: "no data found"});
     }
-    
-    res.json({itemsData, naviData});
+
+    res.json({itemsData, naviData, pagesData});
+    // write the returned to client data to Db
+    writeData(itemsData);
 });
 
 app.get("/getQueryItems", async (req, res) => {
-    // TODO: execute function to send already updated url to scraper module
     const data = await sendQueryData();
     const itemsData = data.itemsData;
     const naviData = data.naviData;
@@ -78,5 +88,7 @@ app.post("/query", async (req, res) => {
 app.listen(port,  () => {
     console.log(`Server listening on port ${port}`);
 });
+
+deleteRerteivedData();
 
 runDB();

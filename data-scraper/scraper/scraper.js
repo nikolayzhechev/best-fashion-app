@@ -9,6 +9,7 @@ const puppeteer = require("puppeteer");
 
 let itemsData = [];
 let naviData = [];
+let pagesData = [];
 let errProxyFail = false;
 let cachedSiteUrl;
 let cachedSiteType;
@@ -96,6 +97,7 @@ export async function scrapeDynamicData(siteName, type, queryData) {
         let allItems = await getData($, siteName, type, queryData, browser, page);
         let itemsArray = allItems.items;
         let naviItemsArray = allItems.naviItems;
+        let paginationArray = allItems.pagination;
 
         if(itemsArray.length === 0){
             console.error(`Items collection is empty. No data has been scraped.\n   scraper.js at line 89`);
@@ -104,6 +106,7 @@ export async function scrapeDynamicData(siteName, type, queryData) {
 
         itemsData = Array.from(itemsArray);
         naviData = Array.from(naviItemsArray);
+        pagesData = Array.from(paginationArray);
 
      } catch (error) {
         console.log(error);
@@ -111,7 +114,7 @@ export async function scrapeDynamicData(siteName, type, queryData) {
         await closeBrowser(browser);
      }
 
-    return { itemsData, naviData };
+    return { itemsData, naviData, pagesData };
 };
 
 if (errProxyFail) {

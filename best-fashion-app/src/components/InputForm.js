@@ -2,7 +2,7 @@ import '../App.css';
 import React, { useState, useEffect } from "react";
 import { URL } from "../env.js";
 
-function InputForm ({ setData, setNavi, itemOptions, setSiteName }) {
+function InputForm ({ setData, setNavi, setPages, itemOptions, setSiteName }) {
     const [type, setType] = useState("");
 
     const updateTypeHandler = (e) => {
@@ -30,6 +30,7 @@ function InputForm ({ setData, setNavi, itemOptions, setSiteName }) {
                 .then((data) => {
                     setData(data.itemsData);
                     setNavi(data.naviData);
+                    setPages(data.pagesData);
                 })
         })
         .catch((err) => {
