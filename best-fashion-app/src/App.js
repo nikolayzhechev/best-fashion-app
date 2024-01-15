@@ -8,7 +8,6 @@ import { URL } from './env.js';
 function App() {
   const [siteData, setSiteData] = useState([]);
   const [naviData, setNaviData] = useState([]);
-  const [queryData, setQueryData] = useState([]);
   const [pageData, setPageData] = useState([]);
   const [itemOptions, setItemOptions] = useState([]);
   const [currentSiteName, setCurrentSiteName] = useState("");
@@ -29,10 +28,48 @@ function App() {
     fetch(URL)
       .then((res) => {return res.json()})
       .then((data) => setSiteData(data))
-  }
+  };
+
+  const handlePageClick = async (e) => {
+    const pageLink = e.target.value;
+
+    fetch(URL + "query", {          // get data via page link
+      method: 'POST',
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify({
+        pageLink,
+        currentSiteName
+      })
+    }).then(() => {
+      fetch(URL + "query")
+        .then((res) => {return res.json()})
+        .then((data) => {
+          setSiteData(data.itemsData);
+          setNaviData(data.naviData); 
+        })
+    })
+      
+  };
+
+  const handleScroll = (e) => {
+    const pagebottom = e.target.scrollHeight - e.target.scrollTop === e.target.clientHeight;
+    console.log(pagebottom)
+    if (pagebottom){
+      //TODO: fetch data on page bottom
+      //(append data to existing data, do NOT remove old data here)
+      fetch(URL + "getItems?page")
+        .then((res) => {return res.json()})
+        .then((data) => {
+          setSiteData(data.itemsData)
+        })
+    }
+  };
 
   return (
-    <section className='main-section'>
+    <section className='main-section' onScroll={handleScroll}>
       <div>
         <InputForm
           setData={setSiteData}
@@ -72,7 +109,9 @@ function App() {
       <div className='pagination-container'>
         <ul>
           { pageData?.map(item => <li>
-              <button><a href={item.url}>{item.text}</a></button>
+              <button value={item.url} onClick={handlePageClick}>
+                {item.text}
+              </button>
             </li>)
           }
         </ul>

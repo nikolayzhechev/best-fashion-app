@@ -5,6 +5,7 @@ import {
     sendData,
     setQueryData,
     sendQueryData,
+    sendDataAndAppend,
     getAllObjects,
     writeData,
     deleteRerteivedData
@@ -22,7 +23,7 @@ app.use(cors());
 app.use(express.json());
 
 app.get("/", async (req, res) => {
-    const data = await getAllObjects();
+    const data = await getAllObjects("Stores");
 
     if(data === undefined || data === null){
         return res.status(404).send({ status: "options unavailable"});
@@ -32,18 +33,17 @@ app.get("/", async (req, res) => {
 });
 
 app.get("/getItems", async (req, res) => {
-    const data = await sendData();
+    const data = await sendData();      // send data for scrape
     const itemsData = data.itemsData;
     const naviData = data.naviData;
     const pagesData = data.pagesData;
 
-    if(data === undefined || data === null){
+    if(data === undefined || data === null){    //TODO: midleware?
         return res.status(404).send({ status: "no data found"});
     }
 
     res.json({itemsData, naviData, pagesData});
-    // write the returned to client data to Db
-    writeData(itemsData);
+    writeData(itemsData);       // write the returned to client data to Db
 });
 
 app.get("/getQueryItems", async (req, res) => {
@@ -58,10 +58,34 @@ app.get("/getQueryItems", async (req, res) => {
     res.json({itemsData, naviData});
 });
 
+app.get("/getItems?page", async (req, res) => {
+    const data = await sendDataAndAppend();
+
+    if(data === undefined || data === null){
+        return res.status(404).send({ status: "no data found"});
+    }
+
+    res.json({itemsData});
+});
+
 app.get("/clear", (req, res) => {
     const data = dataHandle.clearData();
     req.json(data);
 });
+
+app.get("/query", async (req, res) => {
+    const data = await sendQueryData();
+
+    const itemsData = data.itemsData;
+    const naviData = data.naviData;
+
+    if(data === undefined || data === null){
+        return res.status(404).send({ status: "no data found"});
+    }
+    
+    res.json({itemsData, naviData});
+});
+
 
 app.post("/", async (req, res) => {
     const data = req.body;
