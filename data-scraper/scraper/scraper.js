@@ -1,4 +1,4 @@
-import { getUrl, getData } from "./utils.js";
+import { getUrl, getData, getAllObjects } from "./utils.js";
 import { createRequire } from "module";
 import { proxyList } from "./proxyList.js";
 
@@ -10,9 +10,6 @@ const puppeteer = require("puppeteer");
 let itemsData = [];
 let naviData = [];
 let pagesData = [];
-let errProxyFail = false;
-let cachedSiteUrl;
-let cachedSiteType;
 
 // get random proxy server from list
 function getRandomProxy(){
@@ -31,33 +28,8 @@ function getRandomProxy(){
     return proxyData;
 }
 
-export function scrapeStaticData() {
-    let config = {
-        headers: {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36'
-        }
-    }
-    axios(url, config)
-        .then(response => {
-            const html = response.data;
-            const $ = cheerio.load(html);
-
-            $(".product-link _item product-grid-product-info__name link", html).each(function () {
-                const title = $(this).find("h3").text();
-                const url = $(this).find("a").attr("href");
-
-                itemsData.push({
-                    title,
-                    url
-                })
-            })
-        })
-        .catch(err => err.catch);
-
-    return itemsData;
-};
-
-export async function scrapeDynamicData(siteName, type, queryData) {
+export async function scrapeDynamicData(siteName, type, queryData, appendToExisting) {
+    console.log(`Scrape execution properties: siteName: ${siteName}, type: ${type}, queryData: ${queryData}, appendToExisting?: ${appendToExisting}`)
     let url;
     
     if (queryData === null){
@@ -70,9 +42,11 @@ export async function scrapeDynamicData(siteName, type, queryData) {
         return;
     }
 
+    if (appendToExisting){
+        itemsData = getAllObjects("RetreivedData", siteName);     // get written data from db
+    }
+
     let proxyData = getRandomProxy();
-    cachedSiteUrl = siteName;
-    cachedSiteType = type;
 
     const browser = await puppeteer.launch(
         {
@@ -86,10 +60,10 @@ export async function scrapeDynamicData(siteName, type, queryData) {
     
     const page = await browser.newPage();
     let config = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36';
-    
-    try {       
+
+    try {
         await page.setUserAgent(config);
-        await page.goto(url, { timeout: 18000});
+        await page.goto(url, { timeout: 18000 });
         
         let bodyHTML = await page.evaluate(() => document.body.innerHTML);
         let $ = cheerio.load(bodyHTML);
@@ -100,13 +74,22 @@ export async function scrapeDynamicData(siteName, type, queryData) {
         let paginationArray = allItems.pagination;
 
         if(itemsArray.length === 0){
-            console.error(`Items collection is empty. No data has been scraped.\n   scraper.js at line 89`);
+            console.error(`scraper.js: Items collection is empty. No data has been scraped.`);
             return;
         }
 
-        itemsData = Array.from(itemsArray);
-        naviData = Array.from(naviItemsArray);
-        pagesData = Array.from(paginationArray);
+        if (appendToExisting){
+            itemsData.push(...itemsArray);      // add new data to existing           
+        } else {
+            itemsData = Array.from(itemsArray);
+            naviData = Array.from(naviItemsArray);
+            pagesData = Array.from(paginationArray);
+        }
+
+        if (appendToExisting){
+            const targetCount = 100;
+            const scrapedInfiniteData = await scrapeInfiniteScrollPage(page, itemsData, targetCount);
+        }
 
      } catch (error) {
         console.log(error);
@@ -117,9 +100,26 @@ export async function scrapeDynamicData(siteName, type, queryData) {
     return { itemsData, naviData, pagesData };
 };
 
-if (errProxyFail) {
-    scrapeDynamicData(cachedSiteUrl, cachedSiteType);
-}
+// scrapes infinite scrolling pages
+async function scrapeInfiniteScrollPage (page, itemsData, targetCount) {
+    let itemsCount = 0;
+    // TODO: detect scroll behaviour in front-end and call this
+    // function once user scrolles to the bottom
+    try {
+        while (itemsCount < targetCount){
+        }
+        await page.evaluate(() => {
+            window.scrollTo(0, document.body.scrollHeight);
+        });
+
+        await page.waitForTimeout(1000);
+        // TODO: is itemData filtered with relevant data?
+        itemsCount = itemsData.length;
+
+    } catch (error) {
+        console.log(error);
+    }
+};
 
 export async function clearData () {
     data.length = 0;

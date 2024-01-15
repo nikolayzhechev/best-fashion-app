@@ -5,7 +5,8 @@ import siteEnums from "./enums.js";
 import dbConfig from "./db/dbConfig.js";
 
 const require = createRequire(import.meta.url);
-const retreivedItemsDbCollection = dbConfig.db.collection(dbConfig.retreivedDataCollection);
+const retreivedItemsDbCollection = dbConfig.db
+    .collection(dbConfig.allCollections.retreivedDataCollection);
 
 let userData = {
     url: "",
@@ -16,24 +17,24 @@ let queryData = {
     url: "",
     currentSite: ""
 }
-
+// gets the current object for scraping from db
 async function getCurrentObject (siteName, type, queryData){
     if (siteName === null){
         siteName = queryData.currentSite;
     }
-    let items = dbConfig.db.collection(dbConfig.storesCollection)
+    let items = dbConfig.db.collection(dbConfig.allCollections.storesCollection)
         .find({ name: siteName });
     
     for await (const doc of items){
         return doc;
     }
 };
-
+// gets links, urls inside the current object from db
 async function getQueryList (siteName, type, queryData){
     if (siteName === null){
         siteName = queryData.currentSite;
     }
-    let items = dbConfig.db.collection(dbConfig.queryCollection)
+    let items = dbConfig.db.collection(dbConfig.allCollections.queryCollection)
         .find({ site: siteName });
 
     for await (const doc of items){
@@ -41,13 +42,30 @@ async function getQueryList (siteName, type, queryData){
     }
 };
 
-export async function getAllObjects (){
-    let items = await dbConfig.db.collection(dbConfig.storesCollection)
-        .find().toArray();
+export async function getAllObjects (collection, siteName){
+    let collectionToRetreive;
+    let items;
+    let dbInstance;
+
+    for(let [collKey, collName] of Object.entries(dbConfig.allCollections)){
+        if (collName == collection){
+            collectionToRetreive = collName;
+        }
+    }
+
+    if (collectionToRetreive !== undefined){
+        dbInstance = dbConfig.db.collection(collectionToRetreive);
+    }
+
+    if (siteName === null || siteName === undefined){
+        items = await dbInstance.find().toArray();
+    } else {
+        items = await dbInstance.find({ site: siteName }).toArray();
+    }
 
     return items;
 };
-
+// TODO: renove urlData func
 export function urlData (siteName, type) {
     let site = getCurrentObject (siteName, type);
     
@@ -65,7 +83,7 @@ export function urlData (siteName, type) {
         console.error("Site name is unavailable.")
     }
 };
-
+// gets current object url to scrape from db
 export async function getUrl (siteName, type) {
     let site = await getCurrentObject (siteName, type);
 
@@ -75,7 +93,7 @@ export async function getUrl (siteName, type) {
         console.log(`Scraping site: ${site.url + queryType}`);
         return site.url + queryType
     } else {
-        console.error(`No url available;\n  utils.js at line 35.`);
+        console.error(`utils.js: No url available.`);
         return undefined;
     }
 };
@@ -198,28 +216,32 @@ export async function getData ($, siteName, type, queryData, browser, page) {
 
     return { items, naviItems, pagination };
 };
-
+// sets main data for scraping
 export function setData (data) {
     userData.url = data.url;
     userData.siteName = data.siteName;
     userData.type = data.type;
 };
-
+// sets links, urls from main page for scraping
 export function setQueryData (data) {
-    queryData.url = data.queryLink;
-    queryData.currentSite = data.thisSite;
+    queryData.url = data.pageLink;
+    queryData.currentSite = data.currentSiteName;
 };
-
+// sends data to scraper func
 export async function sendData () {
-    const data = await executeScrape(userData.siteName, userData.type, null, "dynamic");
+    const data = await executeScrape(userData.siteName, userData.type, null, false);
     return data;
 };
-
+// sends links, urls from main page to scraper func
 export async function sendQueryData () {
-    const data = await executeScrape(null, null, queryData, "dynamic");
+    const data = await executeScrape(null, null, queryData, false);
     return data;
 };
-
+// sends data to scraper func - append to existing data
+export async function sendDataAndAppend () {
+    const data = await executeScrape(userData.siteName, userData.type, null, true)
+};
+// writes retreived data to db
 export async function writeData (data) {
     if (globalConfig.globalWriteToDB){
         let searchedItems = [];
