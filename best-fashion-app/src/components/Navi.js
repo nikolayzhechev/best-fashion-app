@@ -2,7 +2,7 @@ import '../App.css';
 import React, { useState, useEffect } from 'react';
 import { URL } from "../env.js";
 
-function Navi ({ data, mainSiteData, setData, setNavi, thisSite }) {
+function Navi ({ data, setData, setNavi, thisSite }) {
 
     const queryDataHandler = (e) => {
         const queryLink = e.target.value;
@@ -17,7 +17,7 @@ function Navi ({ data, mainSiteData, setData, setNavi, thisSite }) {
                 queryLink,
                 thisSite
             })
-        })      // TODO: make get request to retreive data from above requets
+        })
         .then(() => {
           fetch(URL + "getQueryItems")
             .then((res) => {return res.json()})
