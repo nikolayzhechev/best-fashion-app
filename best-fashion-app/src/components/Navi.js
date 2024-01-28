@@ -2,10 +2,10 @@ import '../App.css';
 import React, { useState, useEffect } from 'react';
 import { URL } from "../env.js";
 
-function Navi ({ data, setData, setNavi, thisSite }) {
+function Navi ({ data, setData, setNavi, currentSite }) {
 
     const queryDataHandler = (e) => {
-        const queryLink = e.target.value;
+        const url = e.target.value;
 
         fetch(URL + "query", {
             method: 'POST',
@@ -14,8 +14,8 @@ function Navi ({ data, setData, setNavi, thisSite }) {
                 Accept: "application/json",
             },
             body: JSON.stringify({
-                queryLink,
-                thisSite
+                url,
+                currentSite
             })
         })
         .then(() => {

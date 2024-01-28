@@ -29,7 +29,7 @@ function getRandomProxy(){
 }
 
 export async function scrapeDynamicData(siteName, type, queryData, appendToExisting) {
-    console.log(`Scrape execution properties: siteName: ${siteName}, type: ${type}, queryData: ${queryData}, appendToExisting?: ${appendToExisting}`)
+    console.log(`Scrape execution properties: siteName: ${siteName}, type: ${type}, queryData: ${queryData?.url}, appendToExisting?: ${appendToExisting}`)
     let url;
     
     if (queryData === null){

@@ -10,7 +10,7 @@ function App() {
   const [naviData, setNaviData] = useState([]);
   const [pageData, setPageData] = useState([]);
   const [itemOptions, setItemOptions] = useState([]);
-  const [currentSiteName, setCurrentSiteName] = useState("");
+  const [currentSite, setCurrentSite] = useState("");
   const [error, setError] = useState(null);
 
   if (error) {
@@ -31,7 +31,7 @@ function App() {
   };
 
   const handlePageClick = async (e) => {
-    const pageLink = e.target.value;
+    const url = e.target.value;
 
     fetch(URL + "query", {          // get data via page link
       method: 'POST',
@@ -40,8 +40,8 @@ function App() {
         Accept: "application/json",
       },
       body: JSON.stringify({
-        pageLink,
-        currentSiteName
+        url,
+        currentSite
       })
     }).then(() => {
       fetch(URL + "query")
@@ -76,7 +76,7 @@ function App() {
           setNavi={setNaviData}
           setPages={setPageData}
           itemOptions={itemOptions}
-          setSiteName={setCurrentSiteName}>
+          setSiteName={setCurrentSite}>
           </InputForm>
       </div>
       <div className='navi-wrapper'>
@@ -87,7 +87,7 @@ function App() {
               mainSiteData={siteData}
               setData={setSiteData}
               setNavi={setNaviData}
-              thisSite={currentSiteName}>
+              currentSite={currentSite}>
               </Navi>)
           }
         </ul>
