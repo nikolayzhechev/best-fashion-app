@@ -224,8 +224,8 @@ export function setData (data) {
 };
 // sets links, urls from main page for scraping
 export function setQueryData (data) {
-    queryData.url = data.pageLink;
-    queryData.currentSite = data.currentSiteName;
+    queryData.url = data.url;
+    queryData.currentSite = data.currentSite;
 };
 // sends data to scraper func
 export async function sendData () {
@@ -244,21 +244,26 @@ export async function sendDataAndAppend () {
 // writes retreived data to db
 export async function writeData (data) {
     if (globalConfig.globalWriteToDB){
-        let searchedItems = [];
-    
-        data.forEach(item => {
-            // TODO: update find existing item operation
-            searchedItems.push(retreivedItemsDbCollection.find({ itemUrl: item.itemUrl }));
-        });
+        const itemsToInsert = [];
+            
+        for (const item of data) {
+            const foundItem = await retreivedItemsDbCollection
+                .findOne({ "itemUrl": item.itemUrl });
 
-        data = data.filter(el => !searchedItems.includes(el));
+            if (foundItem === undefined || foundItem === null) {
+                itemsToInsert.push(item);
+                console.log(`Inserting item: ${item.itemUrl}`)
+            }
+        }
 
-        retreivedItemsDbCollection.insertMany(data)
-            .then(res => {
-                console.log(`Information: doc inserted: ${res._id}`);
-            })
-            .catch(err => console.log(`Failed to insert doc: ${res.itemUrl}\n${err}`));
-    } else {console.log(`globalWriteToDB: ${globalConfig.globalWriteToDB}`)}
+        if(itemsToInsert.length > 0){
+            retreivedItemsDbCollection.insertMany(itemsToInsert)
+                .then(res => {
+                    console.log(`Information: docs inserted: ${res}`);
+                })
+                .catch(err => console.log(`Failed to insert docs.\n${err}`));
+        } else {console.log(`globalWriteToDB: ${globalConfig.globalWriteToDB}`)}
+        }
 };
 
 async function waitForTarget (page, target) {
