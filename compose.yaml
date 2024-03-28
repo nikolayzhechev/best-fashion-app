@@ -7,6 +7,8 @@
 # You can add other services your application may depend on here, such as a
 # database or a cache. For examples, see the Awesome Compose repository:
 # https://github.com/docker/awesome-compose
+
+# initial config >
 services:
   server:
     build:
@@ -15,6 +17,48 @@ services:
       NODE_ENV: production
     ports:
       - 5000:5000
+
+
+# new config which will be used with nginx in the future >
+
+#version: "3"
+#services:
+## update with documentation: https://hub.docker.com/_/mongo
+#  mongodb:
+#    environment:
+#      - MDBPASSWORD=mongodb_password
+#  nginx:
+#    depends_on:
+#      - api
+#      - client
+#    restart: always
+#    build:
+#      dockerfile: Dockerfile.dev
+#      context: ./nginx
+#    ports:
+#      - "3050:80"
+#  api:
+#    build:
+#      dockerfile: Dockerfile.dev
+#      context: "./server"
+#    volumes:
+#      - /app/node_modules
+#      - ./server:/app
+#    environment:
+#      - MDBUSER=mongodb,
+#      - MDBPASSWORD=mongodb,
+#      - MDBURI=mongodb,
+#      - MDBDATABASENAME=mongodb
+#  client:
+#    stdin_open: true
+#    environment:
+#      - CHOKIDAR_USEPOLLING=true
+#    build:
+#      dockerfile: Dockerfile.dev
+#      context: ./client
+#    volumes:
+#      - /app/node_modules
+#      - ./client:/app
 
 # The commented out section below is an example of how to define a PostgreSQL
 # database that your application can use. `depends_on` tells Docker Compose to

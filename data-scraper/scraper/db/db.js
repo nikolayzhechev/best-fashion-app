@@ -1,10 +1,11 @@
 import { createRequire } from "module";
 const require = createRequire(import.meta.url);
 const { MongoClient, ServerApiVersion } = require('mongodb');
+import { keys } from "../environment/keys.js";
 
-const username = "nikolayzhechev";
-const password = "ObichamMongoDB1996";
-
+const username = keys.mdbUser;
+const password = keys.mdbPassword;
+// make sure IP address is whitelisted for DB
 const uri = `mongodb+srv://${username}:${password}@cluster0.lm4eduw.mongodb.net/?retryWrites=true&w=majority`;
 
 export const client = new MongoClient(uri, {
@@ -18,12 +19,9 @@ export const client = new MongoClient(uri, {
 export async function runDB() {
     try {
         await client.connect();
-        await client.db("BFA").command({ ping: 1 });
+        await client.db(keys.mdbDataBaseName).command({ ping: 1 });
         console.log("DB connected");
     } catch (error) {
         console.log(error);
-    } 
-    // finally {
-    //     await client.close();
-    // }
+    }
 }

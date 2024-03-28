@@ -11,6 +11,7 @@ import {
     deleteRerteivedData
 } from "./utils.js";
 import * as dataHandle from "./scraper.js";
+import { keys } from "./environment/keys.js";
 
 const require = createRequire(import.meta.url);
 const express = require("express");
@@ -110,7 +111,7 @@ app.post("/query", async (req, res) => {
 });
 
 app.listen(port,  () => {
-    console.log(`Server listening on port ${port}`);
+    console.log(`Server listening on port ${keys.port}`);
 });
 
 deleteRerteivedData({});
