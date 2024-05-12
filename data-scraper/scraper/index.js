@@ -110,7 +110,7 @@ app.post("/query", async (req, res) => {
     setQueryData(data);
 });
 
-app.listen(port,  () => {
+app.listen(keys.port,  () => {
     console.log(`Server listening on port ${keys.port}`);
 });
 

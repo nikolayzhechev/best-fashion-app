@@ -4,6 +4,11 @@
 ARG NODE_VERSION=18.18.0
 FROM node:${NODE_VERSION}-alpine
 
+# NGINX
+# FROM nginx
+# RUN rm /etc/nginx/conf.d/default.conf
+# COPY nginx.conf /etc/nginx/conf.d/default.conf
+
 # Install necessary dependencies for Puppeteer
 RUN apk update && apk add --no-cache \
     chromium \

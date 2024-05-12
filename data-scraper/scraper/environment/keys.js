@@ -8,5 +8,7 @@ export const keys  = {
     mdbUser: process.env.MDBUSER,
     mdbPassword: process.env.MDBPASSWORD,
     mdbURI: process.env.MDBURI,
-    mdbDataBaseName: process.env.MDBDATABASENAME
+    mdbDataBaseName: process.env.MDBDATABASENAME,
+    redisHost: process.env.REDIS_HOST,
+    redisPort: process.env.REDIS_PORT
 };

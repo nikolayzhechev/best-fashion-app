@@ -1,2 +1,3 @@
 data-scraper/scraper/.env
 compose.yaml
+node_modules
