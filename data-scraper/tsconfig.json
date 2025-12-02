@@ -1,0 +1,51 @@
+{
+  "compilerOptions": {
+    // Target environment
+    "target": "ES2021",
+    "module": "CommonJS",
+    // "module": "ES2022",
+    "lib": ["ES2021", "DOM"],
+
+    // Output settings
+    "outDir": "dist",
+    "rootDir": "src",
+
+    // Strictness (important for scrapers & pipelines)
+    "strict": true,
+    "noImplicitAny": true,
+    "alwaysStrict": true,
+    "strictNullChecks": true,
+    "strictPropertyInitialization": true,
+
+    // Module resolution
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+
+    // Node-specific settings
+    "types": ["node"],
+
+    // Path aliases (clean architecture)
+    "baseUrl": "src",
+    "paths": {
+      "@api/*": ["/*"],
+      "@workers/*": ["workers/*"],
+      "@scrapers/*": ["scrapers/*"],
+      "@services/*": ["services/*"],
+      "@models/*": ["models/*"],
+      "@config/*": ["config/*"],
+      "@normalization/*": ["normalization/*"]
+    },
+
+    // Clean builds
+    "removeComments": false,
+    "skipLibCheck": true,
+
+    // For async/await in Node
+    "downlevelIteration": true
+  },
+  
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
+}

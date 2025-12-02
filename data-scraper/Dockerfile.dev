@@ -1,0 +1,32 @@
+# -------------------------
+# DEV DOCKERFILE
+# -------------------------
+FROM node:20-alpine
+
+# Install Chromium for Puppeteer
+RUN apk update && apk add --no-cache \
+    chromium \
+    nss \
+    freetype \
+    freetype-dev \
+    harfbuzz \
+    ca-certificates \
+    ttf-freefont \
+    && rm -rf /var/cache/*
+
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
+
+WORKDIR /usr/src/app
+
+# Copy package files
+COPY package*.json ./
+
+# Install ALL dependencies (including dev)
+RUN npm install
+
+# Copy the rest (TS source)
+COPY . .
+
+EXPOSE 5000
+
+CMD ["npm", "run", "dev"]
