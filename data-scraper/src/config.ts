@@ -1,0 +1,2 @@
+export const globalWriteToDB: boolean = false;   // enable/ disable write to db
+export const deleteRetreivedData: boolean = false;   // deletes the written data from db - requires a filter for function params
