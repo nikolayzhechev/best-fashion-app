@@ -1,0 +1,18 @@
+export interface ICategories {
+    jackets: string,
+    coats: string,
+    jeans: string,
+    pants: string,
+    shorts: string,
+    dresses: string | undefined,
+    skirts: string | undefined,
+    sweatshirts: string,
+    sweatpants: string,
+    leggings: string,
+    joggers: string,
+    tShirts: string,
+    pajamas: string,
+    poloShirts: string,
+    shirts: string,
+    loungewear: string,
+};
