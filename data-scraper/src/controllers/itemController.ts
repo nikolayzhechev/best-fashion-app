@@ -1,7 +1,6 @@
-import { IItemsDTO } from "@models/interfaces/DTOs/IItemsDTO";
-import { IData } from "@models/interfaces/IData";
-import * as itemService from "../services/itemService";
-import { IStores } from "@models/interfaces/IStores";
+import { IData } from "../models/interfaces/IData.js";
+import * as itemService from "../services/itemService.js";
+import { IStores } from "../models/interfaces/IStores.js";
 
 export const getAllItems = async (req: any, res: any) => {
     if (!req.body){
