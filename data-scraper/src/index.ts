@@ -1,19 +1,28 @@
 import express from "express";
 import cors from "cors";
-import { runDB } from "./db/db";
-import { keys } from "./environment/keys";
+import { runDB, validateDBConfig } from "./db/db.js";
+import { keys } from "./environment/keys.js";
+import itemsRouter from "./routes/itemRoutes.js";
 
 const app: any = express();
 
 app.use(cors());
 app.use(express.json());
 
-import itemsRouter from "./routes/itemRoutes";
-
 app.use("/", itemsRouter);
 
-app.listen(keys.port,  () => {
-    console.log(`Server listening on port ${keys.port}`);
-});
+async function start() {
+    try {
+        validateDBConfig();
+        await runDB();
 
-runDB();
+        app.listen(keys.port,  () => {
+            console.log(`Server listening on port ${keys.port}`);
+        });
+    } catch (err) {
+        console.log("Startup failed: ", err);
+        process.exit(1);
+    }
+}
+
+start();
