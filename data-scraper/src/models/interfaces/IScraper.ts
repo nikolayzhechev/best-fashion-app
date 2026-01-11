@@ -1,5 +1,4 @@
-import { IData } from "./IData";
-import { RedisClientType } from "redis";
+import { IData } from "./IData.js";
 
 export interface Scraper {
   source: string;
