@@ -2,7 +2,8 @@
   "compilerOptions": {
     // Target environment
     "target": "ES2021",
-    "module": "CommonJS",
+    "module": "ESNext",
+    // "module": "CommonJS",
     // "module": "ES2022",
     "lib": ["ES2021", "DOM"],
 
@@ -47,5 +48,11 @@
   },
   
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist"]
+  "exclude": ["node_modules", "dist"],
+
+  "ts-node": {
+    "experimentalSpecifierResolution": "node",
+    "transpileOnly": true,
+    "esm": true,
+  },
 }
