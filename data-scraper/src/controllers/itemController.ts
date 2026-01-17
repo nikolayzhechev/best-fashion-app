@@ -3,11 +3,13 @@ import * as itemService from "../services/itemService.js";
 import { IStores } from "../models/interfaces/IStores.js";
 
 export const getAllItems = async (req: any, res: any) => {
-    if (!req.body){
-        return res.status(400).send({ status: "failed" });
+    if (!req.query){
+        return res.status(400).send({ status: "failed: no query string provided in URI" });
     }
-    // req.body == siteName
-    const data: IData[] | null = await itemService.getItems(req.body);
+
+    const { store, gender, category }: any = req.query;
+
+    const data: IData[] | null = await itemService.getItems(store, gender, category);
 
     if(!data){
         return res.status(404).send({ status: "no data found"});

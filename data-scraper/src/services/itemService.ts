@@ -12,13 +12,19 @@ const db: Db = dbConfig.db;
 const collections: IDbCollections = dbConfig.allCollections;
 const dataCollection = db.collection(collections.data);
 
-export async function getItems (siteName: string, category?: string): Promise<IData[] | null> {
+export async function getItems (siteName: string, gender?: string, category?: string): Promise<IData[] | null> {
+    const filter: Partial<IData> = {site: siteName};
+
+    if (gender) {
+        filter.gender = gender;
+    }
+
+    if (category) {
+        filter.category = category;
+    }
+
     try {
-        if (category) {
-            return await dataCollection.find<IData>({ name: siteName, category: category }).toArray();
-        } else {
-            return await dataCollection.find<IData>({ name: siteName }).toArray();
-        }
+        return await dataCollection.find<IData>(filter).toArray();
     } catch (err:any) {
         console.log(`Error while fetching items from db: ${err}`);
         return null;

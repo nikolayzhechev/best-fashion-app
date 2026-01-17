@@ -10,4 +10,6 @@ router.get("/", getAllStoreItems);
 
 router.get("/items", getAllItems);
 
+// router.get("/items/:id", getItems);
+
 export default router;
