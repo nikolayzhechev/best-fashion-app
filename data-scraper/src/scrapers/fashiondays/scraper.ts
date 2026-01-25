@@ -11,14 +11,16 @@ import { IStoreTargetMetadata } from "../../models/interfaces/IStoreTargetMetada
 import siteEnums from "../enums.js";
 import { ICategories } from '../../models/interfaces/ICategories.js';
 import { Scraper } from '../../models/interfaces/IScraper.js';
+import { closeBrowser, waitForTarget} from '../utils.js';
 
-const siteName: string = siteEnums.Sites.fashionDays;
+const siteName: string = siteEnums.Sites.fashiondays;
 const store: IStores | null = await service.getStore(siteName);
 const queries: IQueries | null = await service.getCategories(siteName);
 let itemsData: IData[] = [];
 
 const fashiondaysScraper: Scraper = {
     source: "fashiondays",
+    isExecutable: false,
 
     async scrapeDynamicData(): Promise<IData[]> {
         let proxyData: IProxyData = await proxyService.getRandomProxy();
@@ -45,7 +47,7 @@ const fashiondaysScraper: Scraper = {
         } catch (error: any) {
             console.log(error);
         } finally {
-            await closeBrowser(browser);
+            await closeBrowser(browser, page);
         };
 
         async function setScrapedData (categories: ICategories): Promise<void> {
@@ -137,21 +139,8 @@ const fashiondaysScraper: Scraper = {
                 return items;
             }
 
-            async function waitForTarget (page: Page, target: string): Promise<void> {
-                try {
-                    await page.waitForSelector(target, {visible: true, timeout: 5000})
-                } catch (error: any) {
-                    console.log(error);
-                }
-            };
-
             return null;
         }
-
-        async function closeBrowser (browser: Browser) {
-            await browser.close();
-            console.log("Browser instance closed.");
-        };
 
         return itemsData;
     }
