@@ -1,5 +1,5 @@
 export interface IProxy {
     protocol: string,
-    host: string,
+    ip: string,
     port: number
 };

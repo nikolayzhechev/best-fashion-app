@@ -1,4 +1,4 @@
-import { IStoreTargetMetadata } from "./IStoreTargetMetadata"
+import { IStoreTargetMetadata } from "./IStoreTargetMetadata.js"
 
 export interface IStoreTarget {
     tag: string,

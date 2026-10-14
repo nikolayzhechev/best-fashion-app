@@ -9,5 +9,6 @@ export interface IStoreTargetMetadata {
         class: string,
         tag: string,
         description: string
-    }
+    },
+    gender: string
 };
