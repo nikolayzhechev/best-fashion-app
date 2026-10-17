@@ -1,40 +1,14 @@
-import '../App.css';
-import React, { useState, useEffect } from 'react';
-import { URL } from "../env.js";
+function Navi({ pagination, onPageChange }) {
+  const { page, totalPages } = pagination;
+  if (totalPages < 2) return null;
 
-function Navi ({ data, setData, setNavi, currentSite }) {
-
-    const queryDataHandler = (e) => {
-        const url = e.target.value;
-
-        fetch(URL + "query", {
-            method: 'POST',
-            headers: {
-                "Content-Type": "application/json",
-                Accept: "application/json",
-            },
-            body: JSON.stringify({
-                url,
-                currentSite
-            })
-        })
-        .then(() => {
-          fetch(URL + "getQueryItems")
-            .then((res) => {return res.json()})
-            .then((data) => {
-                setData(data.itemsData);
-                setNavi(data.naviData);
-            })
-        })
-    }
-
-    return (
-        <li className='navi-wrapper-list-item'>
-            <button value={data.link} onClick={queryDataHandler}>
-                {data.title}
-            </button>
-        </li>
-    )
+  return (
+    <nav className="pagination-container" aria-label="Product pages">
+      <button disabled={page <= 1} onClick={() => onPageChange(page - 1)}>Previous</button>
+      <p aria-live="polite">Page {page} of {totalPages}</p>
+      <button disabled={page >= totalPages} onClick={() => onPageChange(page + 1)}>Next</button>
+    </nav>
+  );
 }
 
 export default Navi;

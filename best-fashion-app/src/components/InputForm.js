@@ -1,92 +1,82 @@
-import '../App.css';
-import React, { useState, useEffect } from "react";
-import { URL } from "../env.js";
+import { useEffect, useState } from 'react';
 
-function InputForm ({ setData, setNavi, setPages, itemOptions, setSiteName }) {
-    const [type, setType] = useState("");
+const genderLabels = { woman: 'Women', men: 'Men', unisex: 'Unisex', kids: 'Kids' };
 
-    const updateTypeHandler = (e) => {
-        setType(e.target.value);
-    };
+function values(options) {
+  return options.map(option => typeof option === 'string' ? option : option?.name).filter(Boolean);
+}
 
-    const sendDataHandler = (e) => {
-        const siteName = e.target.value;
-        setSiteName(siteName);
+function InputForm({ filters, facets, onApply }) {
+  const [draft, setDraft] = useState(filters);
+  useEffect(() => setDraft(filters), [filters]);
 
-        fetch(URL, {
-            method: 'POST',
-            headers: {
-                "Content-Type": "application/json",
-                Accept: "application/json",
-            },
-            body: JSON.stringify({
-                siteName,
-                type
-            })
-        })
-        .then(() => {
-            fetch(URL + "getItems")
-                .then((res) => {return res.json()})
-                .then((data) => {
-                    setData(data.itemsData);
-                    setNavi(data.naviData);
-                    setPages(data.pagesData);
-                })
-        })
-        .catch((err) => {
-            console.log(err.message);
-        });
-    }
+  const update = event => {
+    const { name, value } = event.target;
+    setDraft(current => ({
+      ...current,
+      [name]: value,
+      ...(['store', 'gender'].includes(name) ? { category: '' } : {})
+    }));
+  };
 
-    return (
-        <div className='navi-container'>
-            <ul className='navi-list-container'>
-                <li className='navi-list-container-item'>
-                    <button value={"woman"} onMouseOver ={updateTypeHandler}>Woman</button>
-                    <ul className='navi-list-dropdown'>
-                        {
-                            itemOptions?.map((item) =>
-                                <li className='navi-list-item'>
-                                    <button value={item.name} onClick={sendDataHandler}>
-                                        {item.name}
-                                    </button>
-                                </li>)
-                        }
-                    </ul>
-                </li>
-                <li className='navi-list-container-item'>
-                    <button value={"men"} onMouseOver ={updateTypeHandler}>Men</button>
-                    <ul className='navi-list-dropdown'>
-                        {
-                            itemOptions?.map((item) =>
-                                <li className='navi-list-item'>
-                                    <button value={item.name} onClick={sendDataHandler}>
-                                        {item.name}
-                                    </button>
-                                </li>)
-                        }
-                    </ul>
-                </li>
-            </ul>
+  const stores = values(facets.stores);
+  
+  const selectedStore = facets.stores
+    .find(store =>
+      store?.name === draft.store
+    );
+  
+  const allStoreValues = key => [...new Set(facets.stores.flatMap(store => values(store?.[key] || [])))];
+  const changedScope = draft.store !== filters.store || draft.gender !== filters.gender;
 
-            {/* <form onSubmit={sendDataHandler}>
-                <label htmlFor="siteName">Site Name:</label>
-                <select id="siteName" name="siteName">
-                    {
-                        itemOptions?.map((item) => <option value={item.name}>{item.name}</option>)
-                    }
-                </select>
+  const categories = changedScope
+    ? (selectedStore ? values(selectedStore.categories || []) : allStoreValues('categories'))
+    : values(facets.categories);
+    
+  const genders = selectedStore
+    ? values(selectedStore.genders || [])
+    : (allStoreValues('genders').length ? allStoreValues('genders') : values(facets.genders));
 
-                <label htmlFor="type">Type:</label>
-                <select id="type" name="type">
-                    <option value="woman">Woman</option>
-                    <option value="men">Men</option>
-                </select>
+  // Keep an active selection visible if a catalogue refresh removes its facet.
+  const withSelection = (options, selected) => 
+    selected && !options.includes(selected) ? [...options, selected] : options;
 
-                <button type="submit">Filter items</button>
-            </form> */}
-        </div>
-    )
+  return (
+    <form className="catalogue-filters" aria-label="Product filters" onSubmit={event => {
+      event.preventDefault();
+      onApply({ ...draft, q: draft.q.trim() });
+    }}>
+      <div className="filter-field search-field">
+        <label htmlFor="search">Search products</label>
+        <input id="search" name="q" type="search" value={draft.q} onChange={update} placeholder="Search by product or brand" maxLength={100} />
+      </div>
+      <div className="filter-field">
+        <label htmlFor="store">Store</label>
+        <select id="store" name="store" value={draft.store} onChange={update}>
+          <option value="">All stores</option>
+          {withSelection(stores, draft.store).map(store => <option key={store} value={store}>{store}</option>)}
+        </select>
+      </div>
+      <div className="filter-field">
+        <label htmlFor="gender">Gender</label>
+        <select id="gender" name="gender" value={draft.gender} onChange={update}>
+          <option value="">All genders</option>
+          {withSelection(genders, draft.gender).map(gender => <option key={gender} value={gender}>{genderLabels[gender] || gender}</option>)}
+        </select>
+      </div>
+      <div className="filter-field">
+        <label htmlFor="category">Category</label>
+        <select id="category" name="category" value={draft.category} onChange={update}>
+          <option value="">All categories</option>
+          {withSelection(categories, draft.category).map(category => <option key={category} value={category}>{category}</option>)}
+        </select>
+      </div>
+      <div className="filter-actions">
+        <button className="primary-button" type="submit">Search</button>
+        <button type="button" onClick={() => onApply({ store: '', gender: '', category: '', q: '' })}>Clear filters</button>
+      </div>
+    </form>
+  );
 }
 
 export default InputForm;
